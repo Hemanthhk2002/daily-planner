@@ -146,7 +146,7 @@ export default function Schedule({ visible, onClose }) {
     console.log(data);
 
     try {
-      const response = await axios.post("http://192.168.1.97:3000/add", data);
+      const response = await axios.post("http://192.168.180.191:3000/add", data);
       console.log(response.data);
     } catch (error) {
       console.log(error);
@@ -166,7 +166,7 @@ export default function Schedule({ visible, onClose }) {
 
     try {
       const response = await axios.post(
-        "http://192.168.1.97:3000/getSchedule",
+        "http://192.168.180.191:3000/getSchedule",
         data
       );
       console.log(response.data);

@@ -51,7 +51,7 @@ const SignupScreen = () => {
 
       try {
         const response = await axios.post(
-          "http://192.168.1.97:3000/register",
+          "http://192.168.180.191:3000/register",
           data
         );
         console.log("Response data:", response.data);

@@ -30,7 +30,7 @@ const LoginScreen = () => {
 
       try {
         const response = await axios
-          .post("http://192.168.1.97:3000/user-login", data)
+          .post("http://192.168.180.191:3000/user-login", data)
           .then((res) => {
             // console.log("loginned data", res.data);
             AsyncStorage.setItem("data", JSON.stringify(res.data));

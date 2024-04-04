@@ -6,14 +6,14 @@ const scheduleSchema = require("./scheduleDetails");
 
 const cors = require("cors");
 
-const {
-  default: AsyncStorage,
-} = require("@react-native-async-storage/async-storage");
-// const user = require("./userDetails");
+// const {
+//   default: AsyncStorage,
+// } = require("@react-native-async-storage/async-storage");
+// // const user = require("./userDetails");
 
 mongooseURL =
-  "mongodb+srv://hemanth:1234567890@cluster0.97vwsgo.mongodb.net/demoOne?retryWrites=true&w=majority";
-//  mongooseURL = "mongodb://127.0.0.1:27017/planner";
+  //"mongodb+srv://hemanth:1234567890@cluster0.97vwsgo.mongodb.net/demoOne?retryWrites=true&w=majority";
+  mongooseURL = "mongodb://127.0.0.1:27017/planner";
 app.use(express.json());
 
 const corsOptions = {
