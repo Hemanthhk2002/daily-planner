@@ -29,7 +29,7 @@ const ScheduleScreen = () => {
   const today = new Date().toISOString().split("T")[0];
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: "#ffffff" }}>
       <Schedule visible={scheduleModal} onClose={closeScheduleModal} />
 
       <Text style={styles.calendarText}>Calendar</Text>
@@ -44,7 +44,7 @@ const ScheduleScreen = () => {
         minDate={today}
         onDayPress={handleDayPress}
         markedDates={{
-          [selectedDate]: { selected: true, selectedColor: "#b0d598" },
+          [selectedDate]: { selected: true, selectedColor: "#E0FFFF", selectedTextColor:"#c0c4c4" },
         }}
       />
 
@@ -60,7 +60,7 @@ const ScheduleScreen = () => {
 const styles = StyleSheet.create({
   modalBackGround: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0,0,0,0)",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -79,9 +79,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   calendarText: {
+    fontSize: 30,
     alignItems: "center",
     marginTop: 80,
-    marginHorizontal: "40%",
+    marginHorizontal: "30%",
+    fontWeight: "bold",
   },
   radioGroup: {
     flexDirection: "column",
@@ -100,7 +102,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     right: 0,
-    backgroundColor: "#b0d598",
+    backgroundColor: "#00428c",
     padding: 10,
     paddingHorizontal: 12,
     borderRadius: 5,
@@ -117,7 +119,7 @@ const styles = StyleSheet.create({
   mySchedule: {
     alignItems: "center",
     margin: 30,
-    backgroundColor: "#b0d598",
+    backgroundColor: "#E0FFFF",
     padding: 20,
     borderRadius: 10,
   },
@@ -129,15 +131,15 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderWidth: 1,
-    backgroundColor: "#b0d598",
-    borderColor: "#b0d598",
+    backgroundColor: "#E0FFFF",
+    borderColor: "#E0FFFF",
     margin: 25,
   },
   btnText: {
     fontSize: 18,
     lineHeight: 26,
     fontWeight: "600",
-    color: "#fff",
+    color: "#a3adad",
   },
 });
 

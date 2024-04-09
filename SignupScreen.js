@@ -30,10 +30,6 @@ const SignupScreen = () => {
     }
     return true;
   }
-  // Your signup logic goes here
-
-  // After successful signup, navigate to UserProfileScreen
-  // navigation.navigate("Profile");
 
   const handleSignIn = () => {
     navigation.navigate("Login");
@@ -51,7 +47,7 @@ const SignupScreen = () => {
 
       try {
         const response = await axios.post(
-          "http://192.168.180.191:3000/register",
+          "http://192.168.0.103:3000/register",
           data
         );
         console.log("Response data:", response.data);
@@ -129,13 +125,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#EDFCF4",
+    backgroundColor: "#E0FFFF",
   },
   logo: {
     fontWeight: "bold",
     fontSize: 40,
     marginBottom: 40,
-    color: "#94C973",
+    color: "#b6e7fa",
   },
   inputView: {
     width: "80%",
@@ -151,7 +147,7 @@ const styles = StyleSheet.create({
   },
   loginBtn: {
     width: "80%",
-    backgroundColor: "#94C973",
+    backgroundColor: "#b6e7fa",
     borderRadius: 25,
     height: 50,
     alignItems: "center",
@@ -165,7 +161,7 @@ const styles = StyleSheet.create({
   },
   signInText: {
     marginTop: 10,
-    color: "#94C973",
+    color: "#7cbef7",
   },
 });
 

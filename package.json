@@ -31,7 +31,8 @@
     "react-native-gesture-handler": "~2.14.0",
     "react-native-modals": "^0.22.3",
     "react-native-paper": "^5.12.3",
-    "react-native-swiper": "^1.6.0"
+    "react-native-swiper": "^1.6.0",
+    "typescript": "^5.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

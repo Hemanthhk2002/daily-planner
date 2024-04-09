@@ -79,11 +79,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
-    backgroundColor: "#EDFCF4",
+    backgroundColor: "#FFFFFF",
     padding: 10,
   },
   userview: {
-    backgroundColor: "#93E9BE",
+    backgroundColor: "#b6e7fa",
     width: 330,
     marginTop: 30,
     height: 80,
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     gap: 40,
   },
   streaks: {
-    backgroundColor: "#93E9BE",
+    backgroundColor: "#b6e7fa",
     width: 330,
     marginTop: 30,
     height: 80,
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   ctasks: {
-    backgroundColor: "#93E9BE",
+    backgroundColor: "#b6e7fa",
     width: 155,
     height: 150,
     alignItems: "center",

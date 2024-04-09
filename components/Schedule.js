@@ -79,8 +79,10 @@ export default function Schedule({ visible, onClose }) {
   const [showPicker, setShowPicker] = useState(false);
   const [scheduleDate, setScheduleDate] = useState(new Date());
 
-  const [showTimePicker, setShowTimePicker] = useState(false);
   const [scheduleTime, setScheduleTime] = useState(new Date());
+  const [showTimePicker, setShowTimePicker] = useState(false); // State variable to manage time picker visibility
+  const [selectedTime, setSelectedTime] = useState(new Date()); // State variable to store selected time
+
 
   const [name, setName] = useState("");
   const [time, setTime] = useState("");
@@ -110,7 +112,7 @@ export default function Schedule({ visible, onClose }) {
     setShowTimePicker(!showTimePicker);
   };
 
-  const onChange = ({ type }, selectedDate) => {
+  const onChangeDate = ({ type }, selectedDate) => {
     if (type == "set") {
       const currentDate = selectedDate;
       setDate(currentDate);
@@ -139,7 +141,7 @@ export default function Schedule({ visible, onClose }) {
       email: "sana@gmail.com",
       name: name,
       date: scheduleDate.toISOString().split("T")[0],
-      time: "12.34 PM",
+      time: formattedTime,
       repeat: repeatVal,
     };
 
@@ -172,15 +174,29 @@ export default function Schedule({ visible, onClose }) {
       console.log(response.data);
       setScheduleData(response.data.data);
       console.log(response.data.data);
+      const sortedEvents = response.data.data.sort((a, b) => {
+        const timeA = a.time.toLowerCase();
+        const timeB = b.time.toLowerCase();
+        return timeA.localeCompare(timeB);
+      });
+
+      setScheduleData(sortedEvents);
+
     } catch (error) {
       console.log(error);
     }
   };
 
+  const onTimeChange = (event, selected) => {
+    const currentTime = selected || selectedTime;
+    setShowTimePicker(Platform.OS === 'ios'); // For iOS, set time picker visibility based on platform behavior
+    setSelectedTime(currentTime); // Update selected time
+  };
+
+
+
   const currentTime = new Date(); // Get current time in local timezone
   const hours = currentTime.getHours(); // Extract hours
-  const minutes = currentTime.getMinutes(); // Extract minutes
-  let meridiem = "AM"; // Default to AM
 
   let formattedHours = hours % 12;
   if (formattedHours === 0) {
@@ -190,33 +206,37 @@ export default function Schedule({ visible, onClose }) {
     meridiem = "PM";
   }
 
-  // Construct the 12-hour time string
-  const formattedTime = `${formattedHours}:${
-    minutes < 10 ? "0" : ""
-  }${minutes} ${meridiem}`;
+
+
+  const formattedTime = selectedTime.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true, // Set to true for 12-hour format
+  });
 
   return (
     <Modal visible={visible} onRequestClose={onClose}>
       <SafeAreaView style={{ flex: 1 }}>
         <ModalPoup visible={addVisible}>
+          <TouchableOpacity onPress={() => setAddVisible(false)} style={styles.closeButton}>
+            <FontAwesome name="close" size={24} color="black" />
+          </TouchableOpacity>
           <View style={{ alignItems: "center" }}></View>
 
           <View>
-            <Text
-              style={{
-                backgroundColor: "#b0d598",
-                padding: 6,
-                borderRadius: 5,
-                fontSize: 16,
-              }}
-            >
-              Schedule your work...
-            </Text>
+            <View style={{ backgroundColor: "#E0FFFF", borderRadius: 5 }}>
+              <Text style={{ padding: 6, fontSize: 16 }}>
+                Schedule your work...
+              </Text>
+            </View>
+
+
+
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Text
                 style={{
                   marginRight: 10,
-                  backgroundColor: "#b0d598",
+                  backgroundColor: "#E0FFFF",
                   padding: 3,
                   borderRadius: 5,
                 }}
@@ -224,7 +244,7 @@ export default function Schedule({ visible, onClose }) {
                 Name
               </Text>
               <TextInput
-                style={{ flex: 1, textDecorationLine: "underline" }}
+                style={{ flex: 1 }}
                 onChangeText={(text) => setName(text)}
                 placeholder="Enter your name"
               />
@@ -233,7 +253,7 @@ export default function Schedule({ visible, onClose }) {
               <Text
                 style={{
                   marginRight: 10,
-                  backgroundColor: "#b0d598",
+                  backgroundColor: "#E0FFFF",
                   padding: 3,
                   borderRadius: 5,
                   paddingRight: 10,
@@ -244,7 +264,7 @@ export default function Schedule({ visible, onClose }) {
               {!showPicker && (
                 <Pressable onPress={toggleDatepicker}>
                   <TextInput
-                    style={{ flex: 1, textDecorationLine: "underline" }}
+                    style={{ flex: 1 }}
                     value={scheduleDate.toISOString().split("T")[0]}
                     onChangeText={setScheduleDate}
                     editable={false}
@@ -257,7 +277,7 @@ export default function Schedule({ visible, onClose }) {
                   mode="date"
                   display="spinner"
                   value={date}
-                  onChange={onChange}
+                  onChange={onChangeDate}
                   style={styles.datePicker}
                 />
               )}
@@ -272,7 +292,7 @@ export default function Schedule({ visible, onClose }) {
               <Text
                 style={{
                   marginRight: 10,
-                  backgroundColor: "#b0d598",
+                  backgroundColor: "#E0FFFF",
                   padding: 3,
                   borderRadius: 5,
                   paddingRight: 10,
@@ -283,7 +303,7 @@ export default function Schedule({ visible, onClose }) {
               {!showTimePicker && (
                 <Pressable onPress={toggleTimePicker}>
                   <TextInput
-                    style={{ flex: 1, textDecorationLine: "underline" }}
+                    style={{ flex: 1 }}
                     value={formattedTime}
                     onChangeText={setScheduleTime}
                     editable={false}
@@ -291,15 +311,16 @@ export default function Schedule({ visible, onClose }) {
                   />
                 </Pressable>
               )}
+
               {showTimePicker && (
                 <DateTimePicker
                   mode="time"
                   display="spinner"
-                  value={scheduleTime}
-                  onChange={onTimeChange} // Using the onTimeChange function here
-                  style={styles.datePicker}
+                  value={selectedTime}
+                  onChange={onTimeChange}
                 />
               )}
+
             </View>
             <View style={styles.radioGroup}>
               <View style={styles.radioButton}>
@@ -307,23 +328,26 @@ export default function Schedule({ visible, onClose }) {
                   value="repeat"
                   status={selectedValue === "repeat" ? "checked" : "unchecked"}
                   onPress={() => setSelectedValue("repeat")}
-                  color="#b0d598"
+                  color="#E0FFFF"
                 />
+                {/* {selectedValue === "repeat" && (
+                  <Text>Hello World</Text>
+                )} */}
+
                 <Text style={styles.radioLabel}>Repeat on</Text>
               </View>
 
               <View style={styles.radioButton}>
                 <RadioButton.Android
                   value="donotrepeat"
-                  status={
-                    selectedValue === "donotrepeat" ? "checked" : "unchecked"
-                  }
+                  status={selectedValue === "donotrepeat" ? "checked" : "unchecked"}
                   onPress={() => setSelectedValue("donotrepeat")}
-                  color="#b0d598"
+                  color="#E0FFFF"
                 />
                 <Text style={styles.radioLabel}>Do not Repeat</Text>
               </View>
             </View>
+
             <TouchableOpacity
               style={styles.buttonSubmit}
               onPress={handleSubmit}
@@ -523,7 +547,7 @@ const styles = StyleSheet.create({
   placeholderInset: {
     borderWidth: 4,
     borderColor: "#e5e7eb",
-    borderRadius: 9,
+    borderRadius: 0,
     flexGrow: 1,
     flexShrink: 1,
     flexBasis: 0,
@@ -537,8 +561,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderWidth: 1,
-    backgroundColor: "#b0d598",
-    borderColor: "#b0d598",
+    backgroundColor: "#E0FFFF",
+    borderColor: "#E0FFFF",
   },
   btnText: {
     fontSize: 18,
@@ -588,7 +612,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     right: 0,
-    backgroundColor: "#b0d598",
+    backgroundColor: "#E0FFFF",
     padding: 10,
     paddingHorizontal: 12,
     borderRadius: 5,
@@ -617,31 +641,29 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderWidth: 1,
-    backgroundColor: "#b0d598",
-    borderColor: "#b0d598",
+    backgroundColor: "#E0FFFF",
+    borderColor: "#E0FFFF",
     margin: 25,
   },
   btnText: {
     fontSize: 18,
     lineHeight: 26,
     fontWeight: "600",
-    color: "#fff",
+    color: "#000",
   },
   placeholderSchedule: {
     borderWidth: 4,
-    borderColor: "#e5e7eb",
+    borderColor: "#ffffff",
     borderRadius: 9,
     flexGrow: 1, // Default background color
     flexShrink: 1,
     flexBasis: 0,
   },
   scheduleItem: {
-    backgroundColor: "#fffff1", // Default background color
+    backgroundColor: "#ffffff", // Default background color
     padding: 10,
-    borderRadius: 5,
   },
   scheduleItemEven: {
-    backgroundColor: "#b0d598", // Green background color for alternate items
-    borderRadius: 5,
+    backgroundColor: "#E0FFFF", // Green background color for alternate items
   },
 });

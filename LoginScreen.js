@@ -107,13 +107,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#EDFCF4",
+    backgroundColor: "#E0FFFF",
   },
   logo: {
     fontWeight: "bold",
     fontSize: 40,
     marginBottom: 40,
-    color: "#94C973",
+    color: "#b6e7fa",
   },
   inputView: {
     width: "80%",
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   },
   loginBtn: {
     width: "80%",
-    backgroundColor: "#94C973",
+    backgroundColor: "#b6e7fa",
     borderRadius: 25,
     height: 50,
     alignItems: "center",
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderWidth: 1,
-    borderColor: "#94C973",
+    borderColor: "#b6e7fa",
     marginRight: 10,
     justifyContent: "center",
     alignItems: "center",
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   checked: {
     width: 14,
     height: 14,
-    backgroundColor: "#94C973",
+    backgroundColor: "#b6e7fa",
   },
   checkboxLabel: {
     fontSize: 16,
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   },
   signupText: {
     marginTop: 10,
-    color: "#94C973",
+    color: "#7cbef7",
   },
 });
 

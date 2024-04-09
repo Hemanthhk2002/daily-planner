@@ -40,7 +40,7 @@ export default function TabNavigation() {
         options={{
           tabBarLabel: ({ color }) => (
             <Text style={{ color: color, marginBottom: 3, fontSize: 12 }}>
-              planner
+              Habit Tacker
             </Text>
           ),
           tabBarIcon: ({ color, size }) => (
