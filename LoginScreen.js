@@ -6,10 +6,10 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFonts } from 'expo-font';
 
 // import TabNavigation from "./Navigation/TabNavigation";
 
@@ -18,6 +18,10 @@ const LoginScreen = () => {
   const [email, setemail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+
+  const [fontsLoaded] = useFonts({
+    'Bree-Serif': require('./assets/fonts/BreeSerif-Regular.ttf'),
+  });
 
   const handleLogin = async () => {
     if (true) {
@@ -30,7 +34,7 @@ const LoginScreen = () => {
 
       try {
         const response = await axios
-          .post("http://192.168.180.191:3000/user-login", data)
+          .post("http://192.168.0.107:3000/user-login", data)
           .then((res) => {
             // console.log("loginned data", res.data);
             AsyncStorage.setItem("data", JSON.stringify(res.data));
@@ -45,27 +49,13 @@ const LoginScreen = () => {
     }
   };
 
-  // const handleLogin = () => {
-  //   if (!username || !password) {
-  //     Alert.alert(
-  //       "Validation Error",
-  //       "Please enter both username and password"
-  //     );
-  //     return;
-  //   }
-  //   // Your login logic goes here
-
-  //   // After successful login, navigate to UserProfileScreen
-  //   navigation.navigate("TabNavigation");
-  // };
-
   const handleSignup = () => {
     navigation.navigate("Signup");
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.logo}>Personal Planner</Text>
+      <Text style={styles.logo}>Welcome Back</Text>
       <View style={styles.inputView}>
         <TextInput
           style={styles.inputText}
@@ -107,17 +97,18 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#E0FFFF",
+    backgroundColor: "#FFFFFF",
   },
   logo: {
     fontWeight: "bold",
     fontSize: 40,
     marginBottom: 40,
     color: "#b6e7fa",
+    fontFamily: "Bree-Sherif",
   },
   inputView: {
     width: "80%",
-    backgroundColor: "#ffffff",
+    backgroundColor: "#B3C8CF",
     borderRadius: 25,
     height: 50,
     marginBottom: 20,

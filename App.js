@@ -3,18 +3,38 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "./LoginScreen";
 import SignupScreen from "./SignupScreen";
+import SplashScreen from "./SplashScreen";
 import TabNavigation from "./Navigation/TabNavigation";
+import { useEffect, useState } from "react";
 
 const Stack = createStackNavigator();
 
 const App = () => {
+  const [loading, setLoading] = useState(true)
+    useEffect(() => {
+        setTimeout(() => setLoading(false), 2500)
+    }, [])
+    if (loading) {
+        return <SplashScreen/>
+    }
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Signup">
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Signup" component={SignupScreen} />
-
-        <Stack.Screen name="TabNavigation" component={TabNavigation} />
+      <Stack.Navigator initialRouteName="Login">
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ headerShown: false }} // hide header for LoginScreen
+        />
+        <Stack.Screen
+          name="Signup"
+          component={SignupScreen}
+          options={{ headerShown: false }} // hide header for SignupScreen
+        />
+        <Stack.Screen
+          name="TabNavigation"
+          component={TabNavigation}
+          options={{ headerShown: false }} // hide header for TabNavigation
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
