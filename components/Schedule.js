@@ -206,8 +206,6 @@ export default function Schedule({ visible, onClose }) {
     meridiem = "PM";
   }
 
-
-
   const formattedTime = selectedTime.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',

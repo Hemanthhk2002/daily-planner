@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  ImageBackground,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
@@ -73,70 +74,82 @@ const SignupScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.logo}>Personal Planner</Text>
-      <View style={styles.inputView}>
-        <TextInput
-          style={styles.inputText}
-          placeholder="Username"
-          onChangeText={(text) => setUsername(text)}
-          value={username}
-        />
+    <ImageBackground
+      source={require('./assets/images/teamwork.png')}
+      style={styles.container}
+    >
+      <View style={styles.overlay}>
+        <Text style={styles.logo}>Register</Text>
+        <View style={styles.inputView}>
+          <TextInput
+            style={styles.inputText}
+            placeholder="Username"
+            onChangeText={(text) => setUsername(text)}
+            value={username}
+          />
+        </View>
+        <View style={styles.inputView}>
+          <TextInput
+            style={styles.inputText}
+            placeholder="Email"
+            onChangeText={(text) => setEmail(text)}
+            value={email}
+            keyboardType="email-address"
+          />
+        </View>
+        <View style={styles.inputView}>
+          <TextInput
+            style={styles.inputText}
+            placeholder="Password"
+            secureTextEntry={true}
+            onChangeText={(text) => setPassword(text)}
+            value={password}
+          />
+        </View>
+        <View style={styles.inputView}>
+          <TextInput
+            style={styles.inputText}
+            placeholder="New Password"
+            secureTextEntry={true}
+            onChangeText={(text) => setNewPassword(text)}
+            value={newPassword}
+          />
+        </View>
+        <TouchableOpacity style={styles.loginBtn} onPress={handleSubmit}>
+          <Text style={styles.loginText}>SIGN UP</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleSignIn}>
+          <Text style={styles.signInText}>Already have an account? Sign in</Text>
+        </TouchableOpacity>
       </View>
-      <View style={styles.inputView}>
-        <TextInput
-          style={styles.inputText}
-          placeholder="Email"
-          onChangeText={(text) => setEmail(text)}
-          value={email}
-          keyboardType="email-address"
-        />
-      </View>
-      <View style={styles.inputView}>
-        <TextInput
-          style={styles.inputText}
-          placeholder="Password"
-          secureTextEntry={true}
-          onChangeText={(text) => setPassword(text)}
-          value={password}
-        />
-      </View>
-      <View style={styles.inputView}>
-        <TextInput
-          style={styles.inputText}
-          placeholder="New Password"
-          secureTextEntry={true}
-          onChangeText={(text) => setNewPassword(text)}
-          value={newPassword}
-        />
-      </View>
-      <TouchableOpacity style={styles.loginBtn} onPress={handleSubmit}>
-        <Text style={styles.loginText}>SIGN UP</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={handleSignIn}>
-        <Text style={styles.signInText}>Already have an account? Sign in</Text>
-      </TouchableOpacity>
-    </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#E0FFFF",
+    alignItems: "center",
+  },
+  overlay: {
+    backgroundColor: "rgba(255, 255, 255, 0.8)", // Adjust the opacity as needed
+    width: "100%",
+    padding: 20,
+    borderRadius: 10,
   },
   logo: {
     fontWeight: "bold",
     fontSize: 40,
-    marginBottom: 40,
-    color: "#b6e7fa",
+    marginBottom: 20,
+    color: "#000000",
+    textAlign: "center",
+    paddingTop: 50,
   },
   inputView: {
-    width: "80%",
-    backgroundColor: "#ffffff",
-    borderRadius: 25,
+    width: "100%",
+    backgroundColor: "#B3C8CF",
+    borderRadius: 10,
     height: 50,
     marginBottom: 20,
     justifyContent: "center",
@@ -146,9 +159,9 @@ const styles = StyleSheet.create({
     height: 50,
   },
   loginBtn: {
-    width: "80%",
-    backgroundColor: "#b6e7fa",
-    borderRadius: 25,
+    width: "100%",
+    backgroundColor: "#97E7E1",
+    borderRadius: 10,
     height: 50,
     alignItems: "center",
     justifyContent: "center",
@@ -161,7 +174,8 @@ const styles = StyleSheet.create({
   },
   signInText: {
     marginTop: 10,
-    color: "#7cbef7",
+    color: "#000000",
+    textAlign: "center",
   },
 });
 

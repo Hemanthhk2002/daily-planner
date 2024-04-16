@@ -6,22 +6,19 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Image,
+  Dimensions,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFonts } from 'expo-font';
-
-// import TabNavigation from "./Navigation/TabNavigation";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [email, setemail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-
-  const [fontsLoaded] = useFonts({
-    'Bree-Serif': require('./assets/fonts/BreeSerif-Regular.ttf'),
-  });
 
   const handleLogin = async () => {
     if (true) {
@@ -30,17 +27,12 @@ const LoginScreen = () => {
         pswd: password,
       };
 
-      // console.log(data);
-
       try {
         const response = await axios
           .post("http://192.168.0.107:3000/user-login", data)
           .then((res) => {
-            // console.log("loginned data", res.data);
             AsyncStorage.setItem("data", JSON.stringify(res.data));
           });
-        // console.log(response.data);
-        // <UserProfileScreen data={response.data} />
 
         navigation.navigate("TabNavigation");
       } catch (error) {
@@ -54,7 +46,16 @@ const LoginScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <View style={styles.semiCircle} />
+      <Image
+        source={require('./assets/images/calendar.png')}
+        style={styles.image}
+        resizeMode="contain" 
+      />
       <Text style={styles.logo}>Welcome Back</Text>
       <View style={styles.inputView}>
         <TextInput
@@ -62,6 +63,8 @@ const LoginScreen = () => {
           placeholder="Email"
           onChangeText={(text) => setemail(text)}
           value={email}
+          autoCorrect={false}
+          autoCapitalize="none"
         />
       </View>
       <View style={styles.inputView}>
@@ -71,6 +74,8 @@ const LoginScreen = () => {
           secureTextEntry={true}
           onChangeText={(text) => setPassword(text)}
           value={password}
+          autoCorrect={false}
+          autoCapitalize="none"
         />
       </View>
       <View style={styles.checkboxContainer}>
@@ -88,44 +93,60 @@ const LoginScreen = () => {
       <TouchableOpacity onPress={handleSignup}>
         <Text style={styles.signupText}>Don't have an account? Sign up</Text>
       </TouchableOpacity>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
+
+const windowWidth = Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#ffffff",
+  },
+  semiCircle: {
+    width: windowWidth+100,
+    height: windowWidth / 1.4,
+    backgroundColor: "#97E7E1",
+    borderBottomLeftRadius: windowWidth,
+    borderBottomRightRadius: windowWidth,
+    position: "absolute",
+    top: 0,
+    zIndex: -1,
   },
   logo: {
     fontWeight: "bold",
     fontSize: 40,
     marginBottom: 40,
-    color: "#b6e7fa",
-    fontFamily: "Bree-Sherif",
+    color: "#000000",
+    fontFamily: "BreeSherifRegular",
+    marginTop: 180,
   },
   inputView: {
     width: "80%",
     backgroundColor: "#B3C8CF",
-    borderRadius: 25,
+    borderRadius: 10,
     height: 50,
     marginBottom: 20,
     justifyContent: "center",
     padding: 20,
+    borderWidth: 1,
+    borderColor: "#ffffff", // Set borderColor to match background color
   },
   inputText: {
     height: 50,
+    color: "#000000", // Set text color
   },
   loginBtn: {
     width: "80%",
-    backgroundColor: "#b6e7fa",
-    borderRadius: 25,
+    backgroundColor: "#97E7E1",
+    borderRadius: 10,
     height: 50,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 40,
+    marginTop: 30,
     marginBottom: 10,
   },
   loginText: {
@@ -135,13 +156,13 @@ const styles = StyleSheet.create({
   checkboxContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 10,
   },
   checkbox: {
     width: 20,
     height: 20,
     borderWidth: 1,
-    borderColor: "#b6e7fa",
+    borderColor: "#97E7E1",
     marginRight: 10,
     justifyContent: "center",
     alignItems: "center",
@@ -149,15 +170,22 @@ const styles = StyleSheet.create({
   checked: {
     width: 14,
     height: 14,
-    backgroundColor: "#b6e7fa",
+    backgroundColor: "#97E7E1",
   },
   checkboxLabel: {
     fontSize: 16,
     color: "#333",
   },
   signupText: {
-    marginTop: 10,
-    color: "#7cbef7",
+    marginTop: 5,
+    color: "#97E7E1",
+  },
+  image: {
+    width: 250, 
+    height: 250,
+    position: "absolute",
+    top: 25,
+    alignSelf: "center",
   },
 });
 

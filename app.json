@@ -30,7 +30,7 @@
       [
         "expo-font",
         {
-          "fonts": ["./assets/fonts/BreeSerif-Regular.ttf"]
+          "fonts": ["./assets/fonts/Bree Serif Regular.ttf"]
         }
       ]
     ]
