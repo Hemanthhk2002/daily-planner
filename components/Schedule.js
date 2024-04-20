@@ -12,17 +12,15 @@ import {
   Dimensions,
   TouchableOpacity,
   Modal,
-  Button,
-  Image,
   Platform,
   Animated,
   TextInput,
   Pressable,
-  CheckBox,
   ScrollView,
 } from "react-native";
 import moment from "moment";
 import Swiper from "react-native-swiper";
+import PORT_URL from "../ip";
 
 const { width } = Dimensions.get("window");
 
@@ -87,7 +85,24 @@ export default function Schedule({ visible, onClose }) {
   const [name, setName] = useState("");
   const [time, setTime] = useState("");
 
+  const days = ["Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun"];
+  
   const [scheduleData, setScheduleData] = useState([]);
+  const [selectedDays, setSelectedDays] = useState([]);
+
+  const handlePress = (day) => {
+    let updatedSelection = [...selectedDays];
+
+    // If the day is already selected, remove it from the selection
+    if (selectedDays.includes(day)) {
+      updatedSelection = updatedSelection.filter((item) => item !== day);
+    } else {
+      // Otherwise, add it to the selection
+      updatedSelection.push(day);
+    }
+
+    setSelectedDays(updatedSelection);
+  };
 
   const weeks = React.useMemo(() => {
     const start = moment().add(week, "weeks").startOf("week");
@@ -143,12 +158,16 @@ export default function Schedule({ visible, onClose }) {
       date: scheduleDate.toISOString().split("T")[0],
       time: formattedTime,
       repeat: repeatVal,
+      repeatOnDays: selectedDays,
     };
-
+    
+    setSelectedDays([]);
+    setScheduleDate(new Date());
+    setSelectedTime(new Date());
     console.log(data);
 
     try {
-      const response = await axios.post("http://192.168.180.191:3000/add", data);
+      const response = await axios.post(PORT_URL + "/add", data);
       console.log(response.data);
     } catch (error) {
       console.log(error);
@@ -168,7 +187,7 @@ export default function Schedule({ visible, onClose }) {
 
     try {
       const response = await axios.post(
-        "http://192.168.180.191:3000/getSchedule",
+        PORT_URL + "/getSchedule",
         data
       );
       console.log(response.data);
@@ -222,8 +241,8 @@ export default function Schedule({ visible, onClose }) {
           <View style={{ alignItems: "center" }}></View>
 
           <View>
-            <View style={{ backgroundColor: "#E0FFFF", borderRadius: 5 }}>
-              <Text style={{ padding: 6, fontSize: 16 }}>
+            <View style={{ borderRadius: 5 }}>
+              <Text style={{fontWeight: "bold", padding: 6, fontSize: 18 }}>
                 Schedule your work...
               </Text>
             </View>
@@ -234,9 +253,9 @@ export default function Schedule({ visible, onClose }) {
               <Text
                 style={{
                   marginRight: 10,
-                  backgroundColor: "#E0FFFF",
+                  backgroundColor: "#97E7E1",
                   padding: 3,
-                  borderRadius: 5,
+                  borderRadius: 2,
                 }}
               >
                 Name
@@ -251,9 +270,9 @@ export default function Schedule({ visible, onClose }) {
               <Text
                 style={{
                   marginRight: 10,
-                  backgroundColor: "#E0FFFF",
+                  backgroundColor: "#97E7E1",
                   padding: 3,
-                  borderRadius: 5,
+                  borderRadius: 2,
                   paddingRight: 10,
                 }}
               >
@@ -290,9 +309,9 @@ export default function Schedule({ visible, onClose }) {
               <Text
                 style={{
                   marginRight: 10,
-                  backgroundColor: "#E0FFFF",
+                  backgroundColor: "#97E7E1",
                   padding: 3,
-                  borderRadius: 5,
+                  borderRadius: 2,
                   paddingRight: 10,
                 }}
               >
@@ -321,29 +340,46 @@ export default function Schedule({ visible, onClose }) {
 
             </View>
             <View style={styles.radioGroup}>
+
+            <View style={styles.radioButton}>
+                <RadioButton.Android
+                  value="donotrepeat"
+                  status={selectedValue === "donotrepeat" ? "checked" : "unchecked"}
+                  onPress={() => setSelectedValue("donotrepeat")}
+                  color="#97E7E1"
+                />
+                <Text style={styles.radioLabel}>Do not Repeat</Text>
+              </View>
+
               <View style={styles.radioButton}>
                 <RadioButton.Android
                   value="repeat"
                   status={selectedValue === "repeat" ? "checked" : "unchecked"}
                   onPress={() => setSelectedValue("repeat")}
-                  color="#E0FFFF"
+                  color="#97E7E1"
                 />
-                {/* {selectedValue === "repeat" && (
-                  <Text>Hello World</Text>
-                )} */}
 
                 <Text style={styles.radioLabel}>Repeat on</Text>
               </View>
 
-              <View style={styles.radioButton}>
-                <RadioButton.Android
-                  value="donotrepeat"
-                  status={selectedValue === "donotrepeat" ? "checked" : "unchecked"}
-                  onPress={() => setSelectedValue("donotrepeat")}
-                  color="#E0FFFF"
-                />
-                <Text style={styles.radioLabel}>Do not Repeat</Text>
-              </View>
+              {selectedValue === "repeat" && (
+                <View style={styles.daycontainer}>
+                {days?.map((item, index) => (
+                    <Pressable
+                      key={index}
+                      style={[
+                        styles.dayButton,
+                        {
+                          backgroundColor: selectedDays.includes(item) ? "#97E7E1" : "#E0E0E0",
+                        },
+                      ]}
+                      onPress={() => handlePress(item)}
+                    >
+                      <Text>{item}</Text>
+                    </Pressable>
+                  ))}
+                  </View>
+                )}
             </View>
 
             <TouchableOpacity
@@ -436,13 +472,10 @@ export default function Schedule({ visible, onClose }) {
                   {scheduleData.map((item, index) => (
                     <View
                       key={index}
-                      style={[
-                        styles.scheduleItem,
-                        index % 2 === 0 ? styles.scheduleItemEven : null,
-                      ]}
+                      style={styles.scheduleItem}
                     >
                       {/* Render text field for each item */}
-                      <Text>{item.name}</Text>
+                      <Text style={ {fontWeight: "bold",} }>{item.name}</Text>
                       <Text>{item.time}</Text>
                       {/* Add more fields as needed */}
                     </View>
@@ -453,7 +486,7 @@ export default function Schedule({ visible, onClose }) {
           </View>
 
           <View style={styles.footer}>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={() => {
                 setAddVisible(true);
               }}
@@ -461,6 +494,12 @@ export default function Schedule({ visible, onClose }) {
               <View style={styles.btn}>
                 <Text style={styles.btnText}>Add Schedule</Text>
               </View>
+            </TouchableOpacity> */}
+            <TouchableOpacity
+                style={styles.button}
+                onPress={() => setAddVisible(true)}
+            >
+                <FontAwesome name="plus" size={24} color="black" />
             </TouchableOpacity>
           </View>
         </View>
@@ -550,24 +589,6 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     flexBasis: 0,
   },
-  /** Button */
-  btn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderWidth: 1,
-    backgroundColor: "#E0FFFF",
-    borderColor: "#E0FFFF",
-  },
-  btnText: {
-    fontSize: 18,
-    lineHeight: 26,
-    fontWeight: "600",
-    color: "#fff",
-  },
   closeButton: {
     position: "absolute",
     top: 20,
@@ -585,7 +606,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     paddingHorizontal: 20,
     paddingVertical: 30,
-    borderRadius: 20,
+    borderRadius: 10,
     elevation: 20,
   },
   calendarText: {
@@ -610,7 +631,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     right: 0,
-    backgroundColor: "#E0FFFF",
+    backgroundColor: "#97E7E1",
     padding: 10,
     paddingHorizontal: 12,
     borderRadius: 5,
@@ -619,7 +640,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 20,
     right: 20,
-    backgroundColor: "#b0d598",
+    backgroundColor: "#97E7E1",
     padding: 10,
     paddingHorizontal: 12,
     borderRadius: 5,
@@ -639,8 +660,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderWidth: 1,
-    backgroundColor: "#E0FFFF",
-    borderColor: "#E0FFFF",
+    backgroundColor: "#97E7E1",
+    borderColor: "#97E7E1",
     margin: 25,
   },
   btnText: {
@@ -658,10 +679,27 @@ const styles = StyleSheet.create({
     flexBasis: 0,
   },
   scheduleItem: {
-    backgroundColor: "#ffffff", // Default background color
     padding: 10,
+    margin: 10,
+    paddingBottom: 10,
+    paddingTop: 10,
+    borderRadius: 5,
+    borderColor: "#000000",
+    borderWidth: 1,
   },
-  scheduleItemEven: {
-    backgroundColor: "#E0FFFF", // Green background color for alternate items
+  daycontainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 5,
+    marginBottom: 50,
+  },
+  dayButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 5,
+    backgroundColor: "#E0E0E0",
+    justifyContent: "center",
+    alignItems: "center",
+    marginHorizontal: 2,
   },
 });

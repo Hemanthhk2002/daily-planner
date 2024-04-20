@@ -39,8 +39,8 @@ app.post("/register", async (req, res) => {
   const { email, name, pswd } = req.body;
   console.log(email);
   const oldUser = await user.findOne({ email: email });
-  //  const existuser= await user.findOne({password:req.body.password})
-  //   const t = await user.find();
+   const existuser= await user.findOne({password:req.body.password})
+    const t = await user.find();
   if (oldUser) {
     return res.send({ data: "User already exists!!" });
   }

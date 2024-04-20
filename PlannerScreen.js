@@ -120,13 +120,15 @@ const PlannerScreen = () => {
 
   return (
     <>
-      <Create visible={isCreateModalVisible} onClose={closeCreateModal}/>
+      {/* <Create visible={isCreateModalVisible} onClose={closeCreateModal}/> */}
+      <Create visible={true} onClose={closeCreateModal}/>
       <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 10 }}>
         <View
           style={{
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "space-between",
+            marginTop: 50,
           }}
         >
           <Ionicons name="logo-foursquare" size={27} color="black" />

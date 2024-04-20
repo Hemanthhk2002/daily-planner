@@ -10,6 +10,7 @@ import {
   ImageBackground,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import PORT_URL from "./ip";
 
 const SignupScreen = () => {
   const navigation = useNavigation();
@@ -47,12 +48,17 @@ const SignupScreen = () => {
       console.log(data);
 
       try {
-        const response = await axios.post(
-          "http://192.168.0.103:3000/register",
+        const response = await axios.post(PORT_URL+"/register",
           data
         );
         console.log("Response data:", response.data);
-        navigation.navigate("Login");
+        if(response.data.data == "User created"){
+          navigation.navigate("TabNavigation");
+        }
+        else{
+          navigation.navigate("Signup");
+        }
+        
       } catch (error) {
         if (error.response) {
           // The request was made and the server responded with a status code

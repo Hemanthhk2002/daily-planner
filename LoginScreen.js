@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import PORT_URL from "./ip";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -29,7 +30,7 @@ const LoginScreen = () => {
 
       try {
         const response = await axios
-          .post("http://192.168.0.107:3000/user-login", data)
+          .post(PORT_URL+"/user-login", data)
           .then((res) => {
             AsyncStorage.setItem("data", JSON.stringify(res.data));
           });

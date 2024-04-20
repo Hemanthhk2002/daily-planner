@@ -1,24 +1,22 @@
-//import { StyleSheet, Text, View, TouchableOpacity, Modal} from "react-native";
+import React, { useState } from "react";
+import { View, StyleSheet, Text, TouchableOpacity, ImageBackground } from "react-native";
 import { Calendar } from "react-native-calendars";
-import { useState } from "react";
-// import { FontAwesome } from '@expo/vector-icons';
-import React from "react";
 import Schedule from "./components/Schedule";
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
+
 
 const ScheduleScreen = () => {
-  const [visible, setVisible] = React.useState(false);
+  const [visible, setVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
-
   const [scheduleModal, setScheduleModal] = useState(false);
 
   const handleDayPress = (date) => {
     setSelectedDate(date.dateString);
-    console.log(date);
+    console.log(selectedDate);
     setScheduleModal(true);
   };
 
   const openScheduleModal = () => {
+    console.log(selectedDate);
     setScheduleModal(true);
   };
 
@@ -29,22 +27,20 @@ const ScheduleScreen = () => {
   const today = new Date().toISOString().split("T")[0];
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#ffffff" }}>
-      <Schedule visible={scheduleModal} onClose={closeScheduleModal} />
+    <View style={styles.container}>
+    {/* <ImageBackground
+      style={styles.container}
+    > */}
+      <Schedule visible={scheduleModal} onClose={closeScheduleModal} selectedDate={selectedDate} />
 
       <Text style={styles.calendarText}>Calendar</Text>
 
       <Calendar
-        style={{
-          borderRadius: 10,
-          elevation: 4,
-          marginTop: 50,
-          marginHorizontal: 30,
-        }}
+        style={styles.calendar}
         minDate={today}
         onDayPress={handleDayPress}
         markedDates={{
-          [selectedDate]: { selected: true, selectedColor: "#E0FFFF", selectedTextColor:"#c0c4c4" },
+          [selectedDate]: { selected: true, selectedColor: "#97E7E1", selectedTextColor: "#000000" },
         }}
       />
 
@@ -53,76 +49,29 @@ const ScheduleScreen = () => {
           <Text style={styles.btnText}>My Schedule</Text>
         </View>
       </TouchableOpacity>
+    {/* </ImageBackground> */}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  modalBackGround: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContainer: {
-    width: "80%",
-    backgroundColor: "white",
-    paddingHorizontal: 20,
-    paddingVertical: 30,
-    borderRadius: 20,
-    elevation: 20,
-  },
-  header: {
-    width: "100%",
-    height: 40,
-    alignItems: "flex-end",
-    justifyContent: "center",
+  container: {
+    paddingTop: 40,
+    backgroundColor: "#ffffff",
+    paddingBottom: 130,
   },
   calendarText: {
     fontSize: 30,
-    alignItems: "center",
     marginTop: 80,
     marginHorizontal: "30%",
     fontWeight: "bold",
   },
-  radioGroup: {
-    flexDirection: "column",
-    alignItems: "left",
-  },
-  radioButton: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  radioLabel: {
-    marginLeft: 8,
-    fontSize: 15,
-    color: "#333",
-  },
-  buttonSubmit: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    backgroundColor: "#00428c",
-    padding: 10,
-    paddingHorizontal: 12,
-    borderRadius: 5,
-  },
-  button: {
-    position: "absolute",
-    bottom: 20,
-    right: 20,
-    backgroundColor: "#b0d598",
-    padding: 10,
-    paddingHorizontal: 12,
-    borderRadius: 5,
-  },
-  mySchedule: {
-    alignItems: "center",
-    margin: 30,
-    backgroundColor: "#E0FFFF",
-    padding: 20,
+  calendar: {
     borderRadius: 10,
-  },
+    elevation: 0,
+    marginTop: 40,
+    marginHorizontal: 0,
+  }, 
   btn: {
     flexDirection: "row",
     alignItems: "center",
@@ -131,15 +80,15 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderWidth: 1,
-    backgroundColor: "#E0FFFF",
-    borderColor: "#E0FFFF",
+    backgroundColor: "#97E7E1",
+    borderColor: "#97E7E1",
     margin: 25,
   },
   btnText: {
     fontSize: 18,
     lineHeight: 26,
     fontWeight: "600",
-    color: "#a3adad",
+    color: "#000000",
   },
 });
 

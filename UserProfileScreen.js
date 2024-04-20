@@ -77,13 +77,14 @@ const UserProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: 50,
     backgroundColor: "#fff",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
     padding: 10,
   },
   userview: {
-    backgroundColor: "#b6e7fa",
+    backgroundColor: "#97E7E1",
     width: 330,
     marginTop: 30,
     height: 80,
@@ -95,7 +96,7 @@ const styles = StyleSheet.create({
     gap: 40,
   },
   streaks: {
-    backgroundColor: "#b6e7fa",
+    backgroundColor: "#97E7E1",
     width: 330,
     marginTop: 30,
     height: 80,
@@ -113,7 +114,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   ctasks: {
-    backgroundColor: "#b6e7fa",
+    backgroundColor: "#97E7E1",
     width: 155,
     height: 150,
     alignItems: "center",
