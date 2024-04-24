@@ -81,12 +81,11 @@ export default function Schedule({ visible, onClose }) {
   const [showTimePicker, setShowTimePicker] = useState(false); // State variable to manage time picker visibility
   const [selectedTime, setSelectedTime] = useState(new Date()); // State variable to store selected time
 
-
   const [name, setName] = useState("");
   const [time, setTime] = useState("");
 
   const days = ["Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun"];
-  
+
   const [scheduleData, setScheduleData] = useState([]);
   const [selectedDays, setSelectedDays] = useState([]);
 
@@ -160,7 +159,7 @@ export default function Schedule({ visible, onClose }) {
       repeat: repeatVal,
       repeatOnDays: selectedDays,
     };
-    
+
     setSelectedDays([]);
     setScheduleDate(new Date());
     setSelectedTime(new Date());
@@ -186,10 +185,7 @@ export default function Schedule({ visible, onClose }) {
     console.log(data);
 
     try {
-      const response = await axios.post(
-        PORT_URL + "/getSchedule",
-        data
-      );
+      const response = await axios.post(PORT_URL + "/getSchedule", data);
       console.log(response.data);
       setScheduleData(response.data.data);
       console.log(response.data.data);
@@ -200,7 +196,6 @@ export default function Schedule({ visible, onClose }) {
       });
 
       setScheduleData(sortedEvents);
-
     } catch (error) {
       console.log(error);
     }
@@ -208,11 +203,9 @@ export default function Schedule({ visible, onClose }) {
 
   const onTimeChange = (event, selected) => {
     const currentTime = selected || selectedTime;
-    setShowTimePicker(Platform.OS === 'ios'); // For iOS, set time picker visibility based on platform behavior
+    setShowTimePicker(Platform.OS === "ios"); // For iOS, set time picker visibility based on platform behavior
     setSelectedTime(currentTime); // Update selected time
   };
-
-
 
   const currentTime = new Date(); // Get current time in local timezone
   const hours = currentTime.getHours(); // Extract hours
@@ -225,9 +218,9 @@ export default function Schedule({ visible, onClose }) {
     meridiem = "PM";
   }
 
-  const formattedTime = selectedTime.toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
+  const formattedTime = selectedTime.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
     hour12: true, // Set to true for 12-hour format
   });
 
@@ -235,116 +228,155 @@ export default function Schedule({ visible, onClose }) {
     <Modal visible={visible} onRequestClose={onClose}>
       <SafeAreaView style={{ flex: 1 }}>
         <ModalPoup visible={addVisible}>
-          <TouchableOpacity onPress={() => setAddVisible(false)} style={styles.closeButton}>
+          <TouchableOpacity
+            onPress={() => setAddVisible(false)}
+            style={styles.closeButton}
+          >
             <FontAwesome name="close" size={24} color="black" />
           </TouchableOpacity>
           <View style={{ alignItems: "center" }}></View>
 
           <View>
             <View style={{ borderRadius: 5 }}>
-              <Text style={{fontWeight: "bold", padding: 6, fontSize: 18 }}>
+              <Text style={{ fontWeight: "bold", padding: 6, fontSize: 18 }}>
                 Schedule your work...
               </Text>
-            </View>
-
-
-
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text
+              <View
                 style={{
-                  marginRight: 10,
-                  backgroundColor: "#97E7E1",
-                  padding: 3,
-                  borderRadius: 2,
+                  flexDirection: "column",
+                  gap: 5,
                 }}
               >
-                Name
-              </Text>
-              <TextInput
-                style={{ flex: 1 }}
-                onChangeText={(text) => setName(text)}
-                placeholder="Enter your name"
-              />
-            </View>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text
-                style={{
-                  marginRight: 10,
-                  backgroundColor: "#97E7E1",
-                  padding: 3,
-                  borderRadius: 2,
-                  paddingRight: 10,
-                }}
-              >
-                Date
-              </Text>
-              {!showPicker && (
-                <Pressable onPress={toggleDatepicker}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    backgroundColor: "#D4F1F4",
+                    borderRadius: 10,
+                    padding: 6,
+                  }}
+                >
+                  <Text
+                    style={{
+                      marginRight: 10,
+                      // backgroundColor: "#97E7E1",
+                      padding: 3,
+                      borderRadius: 2,
+                    }}
+                  >
+                    Name:
+                  </Text>
                   <TextInput
-                    style={{ flex: 1 }}
-                    value={scheduleDate.toISOString().split("T")[0]}
-                    onChangeText={setScheduleDate}
-                    editable={false}
-                    onPressIn={toggleDatepicker}
+                    style={{
+                      flex: 1,
+                      textAlign: "center",
+                      justifyContent: "center",
+                    }}
+                    onChangeText={(text) => setName(text)}
+                    placeholder="Enter your name"
                   />
-                </Pressable>
-              )}
-              {showPicker && (
-                <DateTimePicker
-                  mode="date"
-                  display="spinner"
-                  value={date}
-                  onChange={onChangeDate}
-                  style={styles.datePicker}
-                />
-              )}
-            </View>
-            <View
-              style={{
-                marginTop: 2,
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
-              <Text
-                style={{
-                  marginRight: 10,
-                  backgroundColor: "#97E7E1",
-                  padding: 3,
-                  borderRadius: 2,
-                  paddingRight: 10,
-                }}
-              >
-                Time
-              </Text>
-              {!showTimePicker && (
-                <Pressable onPress={toggleTimePicker}>
-                  <TextInput
-                    style={{ flex: 1 }}
-                    value={formattedTime}
-                    onChangeText={setScheduleTime}
-                    editable={false}
-                    onPressIn={toggleTimePicker}
-                  />
-                </Pressable>
-              )}
+                </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    backgroundColor: "#D4F1F4",
+                    borderRadius: 10,
+                    padding: 6,
+                  }}
+                >
+                  <Text
+                    style={{
+                      marginRight: 10,
+                      // backgroundColor: "#97E7E1",
+                      padding: 3,
+                      borderRadius: 2,
+                      paddingRight: 10,
+                    }}
+                  >
+                    Date:
+                  </Text>
+                  {!showPicker && (
+                    <Pressable onPress={toggleDatepicker}>
+                      <TextInput
+                        style={{
+                          flex: 1,
+                          textAlign: "center",
+                          justifyContent: "center",
+                          marginHorizontal: 50,
+                        }}
+                        value={scheduleDate.toISOString().split("T")[0]}
+                        onChangeText={setScheduleDate}
+                        editable={false}
+                        onPressIn={toggleDatepicker}
+                      />
+                    </Pressable>
+                  )}
+                  {showPicker && (
+                    <DateTimePicker
+                      mode="date"
+                      display="spinner"
+                      value={date}
+                      onChange={onChangeDate}
+                      style={styles.datePicker}
+                    />
+                  )}
+                </View>
+                <View
+                  style={{
+                    marginTop: 2,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    backgroundColor: "#97E7E1",
+                    borderRadius: 10,
+                  }}
+                >
+                  <Text
+                    style={{
+                      marginRight: 10,
+                      // backgroundColor: "#97E7E1",
+                      padding: 3,
+                      borderRadius: 2,
+                      paddingRight: 10,
+                    }}
+                  >
+                    Time:
+                  </Text>
+                  {!showTimePicker && (
+                    <Pressable onPress={toggleTimePicker}>
+                      <TextInput
+                        style={{
+                          flex: 1,
+                          textAlign: "center",
+                          justifyContent: "center",
+                          marginHorizontal: 50,
+                        }}
+                        value={formattedTime}
+                        onChangeText={setScheduleTime}
+                        editable={false}
+                        onPressIn={toggleTimePicker}
+                      />
+                    </Pressable>
+                  )}
 
-              {showTimePicker && (
-                <DateTimePicker
-                  mode="time"
-                  display="spinner"
-                  value={selectedTime}
-                  onChange={onTimeChange}
-                />
-              )}
-
+                  {showTimePicker && (
+                    <DateTimePicker
+                      mode="time"
+                      display="spinner"
+                      value={selectedTime}
+                      onChange={onTimeChange}
+                    />
+                  )}
+                </View>
+              </View>
             </View>
             <View style={styles.radioGroup}>
-
-            <View style={styles.radioButton}>
+              <View style={styles.radioButton}>
                 <RadioButton.Android
                   value="donotrepeat"
-                  status={selectedValue === "donotrepeat" ? "checked" : "unchecked"}
+                  status={
+                    selectedValue === "donotrepeat" ? "checked" : "unchecked"
+                  }
                   onPress={() => setSelectedValue("donotrepeat")}
                   color="#97E7E1"
                 />
@@ -364,13 +396,15 @@ export default function Schedule({ visible, onClose }) {
 
               {selectedValue === "repeat" && (
                 <View style={styles.daycontainer}>
-                {days?.map((item, index) => (
+                  {days?.map((item, index) => (
                     <Pressable
                       key={index}
                       style={[
                         styles.dayButton,
                         {
-                          backgroundColor: selectedDays.includes(item) ? "#97E7E1" : "#E0E0E0",
+                          backgroundColor: selectedDays.includes(item)
+                            ? "#97E7E1"
+                            : "#E0E0E0",
                         },
                       ]}
                       onPress={() => handlePress(item)}
@@ -378,8 +412,8 @@ export default function Schedule({ visible, onClose }) {
                       <Text>{item}</Text>
                     </Pressable>
                   ))}
-                  </View>
-                )}
+                </View>
+              )}
             </View>
 
             <TouchableOpacity
@@ -470,12 +504,9 @@ export default function Schedule({ visible, onClose }) {
               <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <View style={styles.placeholderSchedule}>
                   {scheduleData.map((item, index) => (
-                    <View
-                      key={index}
-                      style={styles.scheduleItem}
-                    >
+                    <View key={index} style={styles.scheduleItem}>
                       {/* Render text field for each item */}
-                      <Text style={ {fontWeight: "bold",} }>{item.name}</Text>
+                      <Text style={{ fontWeight: "bold" }}>{item.name}</Text>
                       <Text>{item.time}</Text>
                       {/* Add more fields as needed */}
                     </View>
@@ -496,10 +527,10 @@ export default function Schedule({ visible, onClose }) {
               </View>
             </TouchableOpacity> */}
             <TouchableOpacity
-                style={styles.button}
-                onPress={() => setAddVisible(true)}
+              style={styles.button}
+              onPress={() => setAddVisible(true)}
             >
-                <FontAwesome name="plus" size={24} color="black" />
+              <FontAwesome name="plus" size={24} color="black" />
             </TouchableOpacity>
           </View>
         </View>
@@ -529,6 +560,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: "#97E7E1",
   },
   subtitle: {
     fontSize: 17,
@@ -549,7 +581,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     borderWidth: 1,
     borderRadius: 8,
-    borderColor: "#e3e3e3",
+    borderColor: "black",
     flexDirection: "column",
     alignItems: "center",
   },
@@ -593,6 +625,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 20,
     right: 20,
+    marginTop: 15,
     zIndex: 999, // Ensure it's above other content
   },
   modalBackGround: {

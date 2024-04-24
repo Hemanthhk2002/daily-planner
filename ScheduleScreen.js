@@ -1,8 +1,13 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Text, TouchableOpacity, ImageBackground } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  ImageBackground,
+} from "react-native";
 import { Calendar } from "react-native-calendars";
 import Schedule from "./components/Schedule";
-
 
 const ScheduleScreen = () => {
   const [visible, setVisible] = useState(false);
@@ -28,19 +33,30 @@ const ScheduleScreen = () => {
 
   return (
     <View style={styles.container}>
-    {/* <ImageBackground
+      {/* <ImageBackground
       style={styles.container}
     > */}
-      <Schedule visible={scheduleModal} onClose={closeScheduleModal} selectedDate={selectedDate} />
+      <Schedule
+        visible={scheduleModal}
+        onClose={closeScheduleModal}
+        selectedDate={selectedDate}
+      />
 
       <Text style={styles.calendarText}>Calendar</Text>
+
+      
+
 
       <Calendar
         style={styles.calendar}
         minDate={today}
         onDayPress={handleDayPress}
         markedDates={{
-          [selectedDate]: { selected: true, selectedColor: "#97E7E1", selectedTextColor: "#000000" },
+          [selectedDate]: {
+            selected: true,
+            selectedColor: "#97E7E1",
+            selectedTextColor: "#000000",
+          },
         }}
       />
 
@@ -49,7 +65,7 @@ const ScheduleScreen = () => {
           <Text style={styles.btnText}>My Schedule</Text>
         </View>
       </TouchableOpacity>
-    {/* </ImageBackground> */}
+      {/* </ImageBackground> */}
     </View>
   );
 };
@@ -71,7 +87,8 @@ const styles = StyleSheet.create({
     elevation: 0,
     marginTop: 40,
     marginHorizontal: 0,
-  }, 
+    backgroundColor: "#D4F1F4",
+  },
   btn: {
     flexDirection: "row",
     alignItems: "center",
