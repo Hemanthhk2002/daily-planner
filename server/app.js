@@ -12,8 +12,8 @@ const cors = require("cors");
 // // const user = require("./userDetails");
 
 mongooseURL =
-  //"mongodb+srv://hemanth:1234567890@cluster0.97vwsgo.mongodb.net/demoOne?retryWrites=true&w=majority";
-  mongooseURL = "mongodb://127.0.0.1:27017/planner";
+  "mongodb+srv://hemanth:1234567890@cluster0.97vwsgo.mongodb.net/demoOne?retryWrites=true&w=majority";
+  //mongooseURL = "mongodb://127.0.0.1:27017/planner";
 app.use(express.json());
 
 const corsOptions = {
@@ -59,13 +59,14 @@ app.post("/user-login", async (req, res) => {
   const oldUser = await user.findOne({ email: email });
 
   if (!oldUser) {
-    return res.send("user not exist");
+    return res.send({message: "user not exist"});
   }
-  if (pswd == oldUser.pswd) {
-    res.send({ status: "ok", message: "User logined", data: oldUser });
-    console.log("User logined");
+  else if (pswd == oldUser.pswd) {
+    res.send({ status: "ok", message: "User loggedin", data: oldUser });
+    console.log("User loggedin");
   } else {
-    res.send({ status: "no", data: "password not matched" });
+    console.log(pswd+" "+oldUser.pswd);
+    res.send({ status: "no", message: "password not matched" });
   }
 });
 
@@ -95,6 +96,16 @@ app.post("/getSchedule", async (req, res) => {
 
   try {
     const data = await schedule.find({ email: email, date: date });
+    console.log(data);
+    res.send({ status: "ok", data: data });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.post("/reminder", async (req, res) => {
+  try {
+    const data = await schedule.find({});
     console.log(data);
     res.send({ status: "ok", data: data });
   } catch (error) {

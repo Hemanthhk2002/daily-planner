@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -33,9 +33,6 @@ const ScheduleScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* <ImageBackground
-      style={styles.container}
-    > */}
       <Schedule
         visible={scheduleModal}
         onClose={closeScheduleModal}
@@ -43,9 +40,6 @@ const ScheduleScreen = () => {
       />
 
       <Text style={styles.calendarText}>Calendar</Text>
-
-      
-
 
       <Calendar
         style={styles.calendar}

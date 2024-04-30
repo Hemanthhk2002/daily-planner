@@ -3,6 +3,8 @@ import { StyleSheet, View } from "react-native";
 import { Avatar, Badge, Text } from "@react-native-material/core";
 import MyScrollView from "./MyScrollView"; // Import the MyScrollView component
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LineChart } from "react-native-chart-kit";
+import { Dimensions } from "react-native";
 
 const UserProfileScreen = () => {
   const [userName, setUserName] = useState("");
@@ -12,26 +14,22 @@ const UserProfileScreen = () => {
     const fetchData = async () => {
       try {
         const data = await AsyncStorage.getItem("data");
+        //console.log(data.name);
         if (data) {
           const parsedData = JSON.parse(data);
-          // console.log("parse data ", parsedData);
-          if (parsedData && parsedData.data) {
-            // console.log(parsedData.data);
-            const userData = parsedData.data;
-            // Access specific properties of the user data object
-            const { _id, name, email } = userData;
-            // Update state with the retrieved data
-            setUserName(name);
-          }
+          //console.log("parse data ", parsedData);
+          setUserName(parsedData.name);
         }
       } catch (error) {
         console.error("Error fetching data from AsyncStorage:", error);
       }
     };
-
     // Call the fetchData function when the component mounts
     fetchData();
   }, []); // Empty dependency array to ensure the effect runs only once
+
+  const pendingTasks = [10, 20, 30, 25, 15];
+  const completedTasks = [5, 15, 25, 20, 10];
 
   return (
     <View style={styles.container}>
@@ -70,6 +68,49 @@ const UserProfileScreen = () => {
 
       {/* Include the MyScrollView component */}
       <MyScrollView />
+
+      <LineChart
+        data={{
+          labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"], // Example labels
+          datasets: [
+            {
+              data: pendingTasks, // Array of pending tasks data points
+              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`, // Color for pending tasks
+              strokeWidth: 2, // Stroke width for pending tasks
+            },
+            {
+              data: completedTasks, // Array of completed tasks data points
+              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`, // Color for completed tasks
+              strokeWidth: 2, // Stroke width for completed tasks
+            },
+          ],
+        }}
+        width={Dimensions.get("window").width - 20}
+        height={220}
+        yAxisInterval={2}
+        chartConfig={{
+          backgroundColor: "#e26a00",
+          backgroundGradientFrom: "#fb8c88",
+          backgroundGradientTo: "#ffa726",
+          decimalPlaces: 2,
+          color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+          style: {
+            borderRadius: 16,
+          },
+          propsForDots: {
+            r: "6",
+            strokeWidth: "2",
+            stroke: "#ffa726",
+          },
+        }}
+        bezier
+        style={{
+          borderRadius: 16,
+        }}
+      />
+
+
     </View>
   );
 };

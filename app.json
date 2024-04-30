@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "login",
-    "slug": "login",
+    "slug": "my-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -30,10 +30,17 @@
       [
         "expo-font",
         {
-          "fonts": ["./assets/fonts/Bree Serif Regular.ttf"]
+          "fonts": [
+            "./assets/fonts/Bree Serif Regular.ttf"
+          ]
         }
       ]
-    ]
-    }
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "9b313f5b-aab4-438b-89ff-b704955496f8"
+      }
+    },
+    "owner": "sudharsana"
   }
-
+}

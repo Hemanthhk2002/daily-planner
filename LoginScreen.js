@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
   View,
@@ -12,14 +12,93 @@ import {
   Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import PORT_URL from "./ip";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
 
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [email, setemail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [expoPushToken, setExpoPushToken] = useState("");
+
+  useEffect(() => {
+    console.log("Registering for push notifications...");
+    registerForPushNotificationsAsync()
+      .then((token) => {
+        console.log("token: ", token);
+        setExpoPushToken(token);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  async function registerForPushNotificationsAsync() {
+    let token;
+
+    if (Platform.OS === "android") {
+      await Notifications.setNotificationChannelAsync("default", {
+        name: "default",
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: "#FF231F7C",
+      });
+    }
+
+    if (Device.isDevice) {
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== "granted") {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== "granted") {
+        alert("Failed to get push token for push notification!");
+        return;
+      }
+      
+      token = (
+        await Notifications.getExpoPushTokenAsync({
+          projectId: "9b313f5b-aab4-438b-89ff-b704955496f8",
+        })
+      ).data;
+      console.log(token);
+    } else {
+      alert("Must use physical device for Push Notifications");
+    }
+
+    return token;
+  }
+
+  const scheduleReminder = async () => {
+    console.log("Scheduling push notification...");
+    const notificationDate = new Date(2024, 3, 28, 12, 39);
+
+    // Schedule the notification
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Scheduled Notification",
+        body: "This notification was scheduled to be sent at a specific time.",
+      },
+      trigger: {
+        date: notificationDate,
+      },
+    });
+
+    console.log("Notification scheduled successfully!");
+  };
+
 
   const handleLogin = async () => {
     if (true) {
@@ -30,12 +109,15 @@ const LoginScreen = () => {
 
       try {
         const response = await axios
-          .post(PORT_URL+"/user-login", data)
-          .then((res) => {
-            AsyncStorage.setItem("data", JSON.stringify(res.data));
-          });
-
-        navigation.navigate("TabNavigation");
+        .post(PORT_URL + "/user-login", data);
+        console.log(response.data.message);
+        if(response.data.message == "User loggedin"){
+          await scheduleReminder();
+          //console.log("data");
+          AsyncStorage.setItem("data", JSON.stringify(response.data.data));
+          //console.log(data);
+          navigation.navigate("TabNavigation");
+        }
       } catch (error) {
         console.log(error);
       }
@@ -122,7 +204,7 @@ const styles = StyleSheet.create({
     fontSize: 40,
     marginBottom: 40,
     color: "#000000",
-    fontFamily: "BreeSherifRegular",
+    // fontFamily: "BreeSherifRegular",
     marginTop: 180,
   },
   inputView: {

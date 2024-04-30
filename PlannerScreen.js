@@ -9,7 +9,6 @@ import {
 import React, { useState, useEffect, useCallback } from "react";
 import { Ionicons, Feather, EvilIcons, FontAwesome } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
-//import { useRouter } from "expo-router";
 import axios from "axios";
 import {
   BottomModal,
@@ -17,7 +16,6 @@ import {
   SlideAnimation,
   ModalContent,
   ModalPortal,
-  //Modal,
 } from "react-native-modals";
 import { useFocusEffect } from "@react-navigation/native";
 import Create from "./components/Create";
@@ -115,13 +113,13 @@ const PlannerScreen = () => {
   // Function to open create habit modal
   const openCreateModal = () => {
     setCreateModalVisible(true);
-    console.log(isCreateModalVisible);
   };
+  
 
   return (
     <>
       {/* <Create visible={isCreateModalVisible} onClose={closeCreateModal}/> */}
-      <Create visible={true} onClose={closeCreateModal}/>
+      <Create visible={isCreateModalVisible} onClose={closeCreateModal}/>
       <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 10 }}>
         <View
           style={{

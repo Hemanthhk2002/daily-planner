@@ -1,298 +1,343 @@
 import {
-    StyleSheet,
-    Text,
-    View,
-    TextInput,
-    TouchableOpacity,
-    Pressable,
-    Animated,
-    Modal,
-    Alert,
-  } from "react-native";
-  import React, { useState } from "react";
-  import { Ionicons, AntDesign } from "@expo/vector-icons";
-  import { FontAwesome } from "@expo/vector-icons";
-  import axios from "axios";
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Pressable,
+  Animated,
+  Modal,
+  SafeAreaView,
+  Alert,
+} from "react-native";
+import React, { useState } from "react";
+import { Ionicons, AntDesign } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
+import axios from "axios";
+
+export default function Create({ visible, onClose }){
+  const [selectedColor, setSelectedColor] = useState("");
+  const [title, setTitle] = useState("");
+  const [selectedDays, setSelectedDays] = useState([]);
+  const [showModal, setShowModal] = useState(visible);
+  const scaleValue = React.useRef(new Animated.Value(0)).current;
+
+  console.log("ert" + visible);
+
+  React.useEffect(() => {
+    toggleModal();
+  }, [visible]);
+
+  React.useEffect(() => {
+    setShowModal(visible);
+  }, [visible]);
   
-  const create = ({ visible, children }) => {
-    const [selectedColor, setSelectedColor] = useState("");
-    const [title, setTitle] = useState("");
-    const [showModal, setShowModal] = React.useState(visible);
-    const scaleValue = React.useRef(new Animated.Value(0)).current;
 
-    console.log(visible);
-
-    React.useEffect(() => {
-        toggleModal();
-      }, [visible]);
-
-    const toggleModal = () => {
+  const toggleModal = () => {
     if (visible) {
-        setShowModal(true);
-        Animated.spring(scaleValue, {
+      setShowModal(true);
+      Animated.spring(scaleValue, {
         toValue: 1,
         duration: 300,
         useNativeDriver: true,
-        }).start();
-        } else {
-            setTimeout(() => setShowModal(false), 200);
-            Animated.timing(scaleValue, {
-            toValue: 0,
-            duration: 300,
-            useNativeDriver: true,
-            }).start();
-        }
-    };
+      }).start();
+    } else {
+      setTimeout(() => setShowModal(false), 200);
+      Animated.timing(scaleValue, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
 
-    const colors = [
-      "#FF5733", // Red
-      "#FFD700", // Gold
-      "#5D76A9", 
-      "#1877F2", // Medium Purple
-      "#32CD32", // Lime Green
-      "#CCCCFF", // Tomato
-      "#4169E1", // Royal Blue
-    ];
-    const days = ["Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun"];
-    async function addHabit() {
-      try {
-        const habitDetails = {
-          title: title,
-          color: selectedColor,
-          repeatMode: "daily",
-          reminder: true,
-        };
-  
-        const response = await axios.post(
-          "http://localhost:3000/habits",
-          habitDetails
-        );
-  
-        if (response.status === 200) {
-          setTitle("");
-          Alert.alert("Habit added succesfully", "Enjoy Practising");
-        }
-  
-        console.log("habit added", response);
-      } catch (error) {
-        console.log("error adding a habit", error);
+  const colors = [
+    "#FF5733", // Red
+    "#FFD700", // Gold
+    "#5D76A9",
+    "#1877F2", // Medium Purple
+    "#32CD32", // Lime Green
+    "#CCCCFF", // Tomato
+    "#4169E1", // Royal Blue
+  ];
+  const days = ["Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun"];
+  const [repeatMode, setRepeatMode] = useState("daily");
+
+  async function addHabit() {
+    try {
+      const habitDetails = {
+        title: title,
+        color: selectedColor,
+        repeatMode: repeatMode,
+        reminder: true,
+        days: selectedDays,
+      };
+
+      const response = await axios.post(
+        "http://192.168.1.100:3000/habits",
+        habitDetails
+      );
+
+      if (response.status === 200) {
+        setTitle("");
+        setSelectedDays([]);
+        Alert.alert("Habit added successfully", "Enjoy Practising");
       }
-    }
 
-    const onBackPress= () => {
-        setShowModal(false);
+      console.log("habit added", response);
+    } catch (error) {
+      console.log("error adding a habit", error);
     }
+  }
 
-    return (
-      <Modal transparent visible={showModal}>
-        <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-            <Pressable onPress={onBackPress} style={styles.backButton}>
-                <Ionicons name="arrow-back" size={24} color="black" />
+  const toggleDaySelection = (day) => {
+    const isSelected = selectedDays.includes(day);
+    if (isSelected) {
+      setSelectedDays(
+        selectedDays.filter((selectedDay) => selectedDay !== day)
+      );
+    } else {
+      setSelectedDays([...selectedDays, day]);
+    }
+  };
+
+  const onBackPress = () => {
+    setShowModal(false);
+  };
+
+  return (
+    <Modal visible={showModal} onRequestClose={onClose}>
+      <SafeAreaView style={{ flex: 1 }}>
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <View style={{ padding: 10 }}>
+            <Pressable onPress={onBackPress}>
+              <Ionicons name="arrow-back" size={24} color="black" />
             </Pressable>
 
-  
             <Text style={{ fontSize: 20, marginTop: 10 }}>
-                Create <Text style={{ fontSize: 20, fontWeight: "500" }}>Habit</Text>
+              Create{" "}
+              <Text style={{ fontSize: 20, fontWeight: "500" }}>Habit</Text>
             </Text>
             <TextInput
-                value={title}
-                onChangeText={(text) => setTitle(text)}
-                style={{
+              value={title}
+              onChangeText={(text) => setTitle(text)}
+              style={{
                 width: "95%",
                 marginTop: 15,
                 padding: 15,
                 borderRadius: 10,
                 backgroundColor: "#aace93",
-                }}
-                placeholder="Title"
+              }}
+              placeholder="Title"
             />
 
             <View style={{ marginVertical: 10 }}>
-                <Text style={{ fontSize: 18, fontWeight: "500" }}>Color</Text>
-                <View
+              <Text style={{ fontSize: 18, fontWeight: "500" }}>Color</Text>
+              <View
                 style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 10,
-                    marginTop: 10,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 10,
+                  marginTop: 10,
                 }}
-                >
+              >
                 {colors?.map((item, index) => (
-                    <TouchableOpacity
+                  <TouchableOpacity
                     onPress={() => setSelectedColor(item)}
                     key={index}
                     activeOpacity={0.8}
-                    >
+                  >
                     {selectedColor === item ? (
-                        <AntDesign name="plussquare" size={30} color={item} />
+                      <AntDesign name="plussquare" size={30} color={item} />
                     ) : (
-                        <FontAwesome name="square" size={30} color={item} />
+                      <FontAwesome name="square" size={30} color={item} />
                     )}
-                    </TouchableOpacity>
+                  </TouchableOpacity>
                 ))}
-                </View>
+              </View>
             </View>
 
             <Text style={{ fontSize: 18, fontWeight: "500" }}>Repeat</Text>
             <View
-                style={{
+              style={{
                 flexDirection: "row",
                 alignItems: "center",
                 gap: 10,
                 marginVertical: 10,
-                }}
+              }}
             >
-                <Pressable
+              <Pressable
+                onPress={() => setRepeatMode("daily")}
                 style={{
-                    backgroundColor: "#AFDBF5",
-                    padding: 10,
-                    borderRadius: 6,
-                    flex: 1,
+                  backgroundColor:
+                    repeatMode === "daily" ? "#AFDBF5" : "#FFFFFF",
+                  padding: 10,
+                  borderRadius: 6,
+                  flex: 1,
                 }}
-                >
+              >
                 <Text style={{ textAlign: "center" }}>Daily</Text>
-                </Pressable>
-                <Pressable
+              </Pressable>
+              <Pressable
+                onPress={() => setRepeatMode("weekly")}
                 style={{
-                    backgroundColor: "#AFDBF5",
-                    padding: 10,
-                    borderRadius: 6,
-                    flex: 1,
+                  backgroundColor:
+                    repeatMode === "weekly" ? "#AFDBF5" : "#FFFFFF",
+                  padding: 10,
+                  borderRadius: 6,
+                  flex: 1,
                 }}
-                >
+              >
                 <Text style={{ textAlign: "center" }}>Weekly</Text>
-                </Pressable>
+              </Pressable>
             </View>
 
-            <Text style={{ fontSize: 18, fontWeight: "500" }}>On these days</Text>
+            <Text style={{ fontSize: 18, fontWeight: "500" }}>
+              On these days
+            </Text>
 
             <View
-                style={{
+              style={{
                 flexDirection: "row",
                 alignItems: "center",
-                gap: 8,
+                gap: 10,
                 marginTop: 10,
-                }}
+              }}
             >
-                {days?.map((item, index) => (
+              {days?.map((item, index) => (
                 <Pressable
-                    style={{
-                    width: 30,
-                    height: 30,
+                  key={index}
+                  style={{
+                    width: 40,
+                    height: 40,
                     borderRadius: 5,
-                    backgroundColor: "#E0E0E0",
+                    backgroundColor: selectedDays.includes(item)
+                      ? "#00428c"
+                      : "#E0E0E0",
                     justifyContent: "center",
                     alignItems: "center",
-                    }}
+                  }}
+                  onPress={() => toggleDaySelection(item)}
                 >
-                    <Text>{item}</Text>
+                  <Text
+                    style={{
+                      color: selectedDays.includes(item) ? "white" : "black",
+                    }}
+                  >
+                    {item}
+                  </Text>
                 </Pressable>
-                ))}
+              ))}
             </View>
 
             <View
-                style={{
+              style={{
                 marginTop: 20,
                 flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "space-between",
-                }}
+              }}
             >
-                <Text style={{ fontSize: 17, fontWeight: "500" }}>Reminder</Text>
-                <Text style={{ fontSize: 17, fontWeight: "500", color: "#2774AE" }}>
+              <Text style={{ fontSize: 17, fontWeight: "500" }}>Reminder</Text>
+              <Text
+                style={{ fontSize: 17, fontWeight: "500", color: "#2774AE" }}
+              >
                 Yes
-                </Text>
+              </Text>
             </View>
 
             <Pressable
-            onPress={addHabit}
-                style={{
+              onPress={addHabit}
+              style={{
                 marginTop: 25,
                 backgroundColor: "#00428c",
                 padding: 10,
                 borderRadius: 8,
-                }}
+              }}
             >
-                <Text
-                style={{ textAlign: "center", color: "white", fontWeight: "bold" }}
-                >
+              <Text
+                style={{
+                  textAlign: "center",
+                  color: "white",
+                  fontWeight: "bold",
+                }}
+              >
                 SAVE
-                </Text>
+              </Text>
             </Pressable>
-            </View>
+          </View>
         </View>
-      </Modal>
-    );
-  };
-  
-  const styles = StyleSheet.create({
-    modalContainer: {
-      flex: 1,
-      backgroundColor: "rgba(0, 0, 0, 0.5)",
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    modalContent: {
-      backgroundColor: "white",
-      padding: 20,
-      borderRadius: 10,
-      width: "80%",
-    },
-    backIcon: {
-      position: "absolute",
-      top: 10,
-      left: 10,
-    },
-    modalTitle: {
-      fontSize: 20,
-      marginTop: 10,
-    },
-    boldText: {
-      fontWeight: "bold",
-    },
-    input: {
-      width: "100%",
-      marginTop: 15,
-      padding: 15,
-      borderRadius: 10,
-      backgroundColor: "#aace93",
-    },
-    subTitle: {
-      fontSize: 18,
-      fontWeight: "500",
-      marginTop: 10,
-    },
-    colorContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 10,
-      marginTop: 10,
-    },
-    colorOption: {
-      width: 30,
-      height: 30,
-      borderRadius: 15,
-      borderWidth: 1,
-      borderColor: "black",
-    },
-    selectedColor: {
-      borderWidth: 2,
-    },
-    saveButton: {
-      marginTop: 25,
-      backgroundColor: "#00428c",
-      padding: 10,
-      borderRadius: 8,
-      alignItems: "center",
-    },
-    saveButtonText: {
-      color: "white",
-      fontWeight: "bold",
-    },
-  });
+      </View>
+      </SafeAreaView>
+    </Modal>
+  );
+};
 
-  export default create;
-  
-  //const styles = StyleSheet.create({});
-  
+
+//const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    width: "80%",
+  },
+  backIcon: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+  },
+  modalTitle: {
+    fontSize: 20,
+    marginTop: 10,
+  },
+  boldText: {
+    fontWeight: "bold",
+  },
+  input: {
+    width: "100%",
+    marginTop: 15,
+    padding: 15,
+    borderRadius: 10,
+    backgroundColor: "#aace93",
+  },
+  subTitle: {
+    fontSize: 18,
+    fontWeight: "500",
+    marginTop: 10,
+  },
+  colorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginTop: 10,
+  },
+  colorOption: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: "black",
+  },
+  selectedColor: {
+    borderWidth: 2,
+  },
+  saveButton: {
+    marginTop: 25,
+    backgroundColor: "#00428c",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  saveButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+});

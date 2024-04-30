@@ -1,7 +1,8 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import { RadioButton } from "react-native-paper";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import {
   StyleSheet,
@@ -82,6 +83,7 @@ export default function Schedule({ visible, onClose }) {
   const [selectedTime, setSelectedTime] = useState(new Date()); // State variable to store selected time
 
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [time, setTime] = useState("");
 
   const days = ["Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun"];
@@ -152,7 +154,7 @@ export default function Schedule({ visible, onClose }) {
       repeatVal = false;
     }
     const data = {
-      email: "sana@gmail.com",
+      email: "sanaamuthan@gmail.com",
       name: name,
       date: scheduleDate.toISOString().split("T")[0],
       time: formattedTime,
@@ -173,22 +175,39 @@ export default function Schedule({ visible, onClose }) {
     }
   };
 
+  useEffect(() => {
+    // Define an async function to fetch data from AsyncStorage
+    const fetchData = async () => {
+      try {
+        const data = await AsyncStorage.getItem("data");
+        //console.log(data.name);
+        if (data) {
+          const parsedData = JSON.parse(data);
+          //console.log("parse data ", parsedData);
+          setEmail(parsedData.email);
+        }
+      } catch (error) {
+        console.error("Error fetching data from AsyncStorage:", error);
+      }
+    };
+
+    // Call the fetchData function when the component mounts
+    fetchData();
+  }, []);
+
   const getSchedule = async (item) => {
     setValue(item.date);
 
     const formattedDate = moment(value, "ddd MMM DD YYYY").format("YYYY-MM-DD");
     console.log(formattedDate);
     const data = {
-      email: "sana@gmail.com",
+      email: email,
       date: formattedDate,
     };
     console.log(data);
 
     try {
       const response = await axios.post(PORT_URL + "/getSchedule", data);
-      console.log(response.data);
-      setScheduleData(response.data.data);
-      console.log(response.data.data);
       const sortedEvents = response.data.data.sort((a, b) => {
         const timeA = a.time.toLowerCase();
         const timeB = b.time.toLowerCase();
