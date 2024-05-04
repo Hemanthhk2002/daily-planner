@@ -5,6 +5,7 @@ import MyScrollView from "./MyScrollView"; // Import the MyScrollView component
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LineChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 
 const UserProfileScreen = () => {
   const [userName, setUserName] = useState("");
@@ -14,16 +15,15 @@ const UserProfileScreen = () => {
     const fetchData = async () => {
       try {
         const data = await AsyncStorage.getItem("data");
-        //console.log(data.name);
         if (data) {
           const parsedData = JSON.parse(data);
-          //console.log("parse data ", parsedData);
           setUserName(parsedData.name);
         }
       } catch (error) {
         console.error("Error fetching data from AsyncStorage:", error);
       }
     };
+
     // Call the fetchData function when the component mounts
     fetchData();
   }, []); // Empty dependency array to ensure the effect runs only once
@@ -32,86 +32,103 @@ const UserProfileScreen = () => {
   const completedTasks = [5, 15, 25, 20, 10];
 
   return (
-    <View style={styles.container}>
-      <View style={styles.userview}>
-        <Avatar image={{ uri: "https://mui.com/static/images/avatar/1.jpg" }} />
-        <Text variant="h6">{userName}</Text>
-      </View>
-      <View style={styles.streaks}>
-        <Text variant="h6">Streaks</Text>
-        <View style={styles.count}>
-          <Text variant="h6">🔥</Text>
-          <Badge style={styles.incr} label={123} color="primary" />
+    <ScrollView>
+      <View style={styles.container}>
+        <View style={styles.userview}>
+          <Avatar
+            image={{ uri: "https://mui.com/static/images/avatar/1.jpg" }}
+          />
+          <Text variant="h6">{userName}</Text>
         </View>
-      </View>
-
-      <Text
-        style={{ alignSelf: "flex-start", marginLeft: 10, marginVertical: 15 }}
-      >
-        Tasks Overview
-      </Text>
-
-      <View style={{ flexDirection: "row", gap: 20 }}>
-        <View style={styles.ctasks}>
-          <Text variant="h6">0</Text>
-          <Text style={{ fontSize: 18, marginTop: 10 }} variant="h6">
-            Completed Tasks
-          </Text>
+        <View style={styles.streaks}>
+          <Text variant="h6">Streaks</Text>
+          <View style={styles.count}>
+            <Text variant="h6">🔥</Text>
+            <Badge style={styles.incr} label={123} color="primary" />
+          </View>
         </View>
-        <View style={styles.ctasks}>
-          <Text variant="h6">0</Text>
-          <Text style={{ fontSize: 18, marginTop: 10 }} variant="h6">
-            Pending Tasks
-          </Text>
+
+        <Text
+          style={{
+            alignSelf: "flex-start",
+            marginLeft: 10,
+            marginVertical: 15,
+          }}
+        >
+          Tasks Overview
+        </Text>
+
+        <View style={{ flexDirection: "row", gap: 20 }}>
+          <View style={styles.ctasks}>
+            <Text variant="h6">0</Text>
+            <Text style={{ fontSize: 18, marginTop: 10 }} variant="h6">
+              Completed Tasks
+            </Text>
+          </View>
+          <View style={styles.ctasks}>
+            <Text variant="h6">0</Text>
+            <Text style={{ fontSize: 18, marginTop: 10 }} variant="h6">
+              Pending Tasks
+            </Text>
+          </View>
         </View>
-      </View>
 
-      {/* Include the MyScrollView component */}
-      <MyScrollView />
+        {/* Include the MyScrollView component */}
+        <Text
+          style={{
+            alignSelf: "flex-start",
+            marginLeft: 10,
+            marginVertical: 15,
+          }}
+        >
+          Habit Trends
+        </Text>
 
-      <LineChart
-        data={{
-          labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"], // Example labels
-          datasets: [
-            {
-              data: pendingTasks, // Array of pending tasks data points
-              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`, // Color for pending tasks
-              strokeWidth: 2, // Stroke width for pending tasks
+        <LineChart
+          data={{
+            labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"], // Example labels
+            datasets: [
+              {
+                data: pendingTasks, // Array of pending tasks data points
+                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`, // Color for pending tasks
+                strokeWidth: 2, // Stroke width for pending tasks
+              },
+              {
+                data: completedTasks, // Array of completed tasks data points
+                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`, // Color for completed tasks
+                strokeWidth: 2, // Stroke width for completed tasks
+              },
+            ],
+          }}
+          width={Dimensions.get("window").width - 20}
+          height={220}
+          yAxisInterval={2}
+          chartConfig={{
+            backgroundColor: "#e26a00",
+            backgroundGradientFrom: "#fb8c88",
+            backgroundGradientTo: "#ffa726",
+            decimalPlaces: 2,
+            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            style: {
+              borderRadius: 16,
             },
-            {
-              data: completedTasks, // Array of completed tasks data points
-              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`, // Color for completed tasks
-              strokeWidth: 2, // Stroke width for completed tasks
+            propsForDots: {
+              r: "6",
+              strokeWidth: "2",
+              stroke: "#ffa726",
             },
-          ],
-        }}
-        width={Dimensions.get("window").width - 20}
-        height={220}
-        yAxisInterval={2}
-        chartConfig={{
-          backgroundColor: "#e26a00",
-          backgroundGradientFrom: "#fb8c88",
-          backgroundGradientTo: "#ffa726",
-          decimalPlaces: 2,
-          color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          style: {
+          }}
+          bezier
+          style={{
             borderRadius: 16,
-          },
-          propsForDots: {
-            r: "6",
-            strokeWidth: "2",
-            stroke: "#ffa726",
-          },
-        }}
-        bezier
-        style={{
-          borderRadius: 16,
-        }}
-      />
+            marginTop: 8,
+          }}
+        />
 
-
-    </View>
+        <MyScrollView />
+      </View>
+    </ScrollView>
   );
 };
 

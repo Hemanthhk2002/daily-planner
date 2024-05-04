@@ -62,6 +62,7 @@ app.post("/user-login", async (req, res) => {
     return res.send({message: "user not exist"});
   }
   else if (pswd == oldUser.pswd) {
+    const scheduleData = await schedule.find({ email: oldUser.email }); 
     res.send({ status: "ok", message: "User loggedin", data: oldUser });
     console.log("User loggedin");
   } else {
@@ -93,6 +94,7 @@ app.post("/add", async (req, res) => {
 
 app.post("/getSchedule", async (req, res) => {
   const { email, date } = req.body;
+  console.log(email);
 
   try {
     const data = await schedule.find({ email: email, date: date });
@@ -101,11 +103,15 @@ app.post("/getSchedule", async (req, res) => {
   } catch (error) {
     console.log(error);
   }
+
 });
 
 app.post("/reminder", async (req, res) => {
+
+  const { email } = req.body;
+  console.log(email);
   try {
-    const data = await schedule.find({});
+    const data = await schedule.find({email: email});
     console.log(data);
     res.send({ status: "ok", data: data });
   } catch (error) {

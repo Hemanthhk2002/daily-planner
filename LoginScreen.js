@@ -77,13 +77,51 @@ const LoginScreen = () => {
     } else {
       alert("Must use physical device for Push Notifications");
     }
-
     return token;
   }
 
-  const scheduleReminder = async () => {
-    console.log("Scheduling push notification...");
-    const notificationDate = new Date(2024, 3, 28, 12, 39);
+  const scheduleReminder = async (email) => {
+    //console.log("Scheduling push notification...");
+    const data = {
+      email: email,
+    }
+
+    const response = await axios.post(PORT_URL + "/reminder", data);
+    const sortedEvents = response.data.data;
+
+    sortedEvents.forEach(async (event, index) =>  {
+      const dateString = event.date;
+      const dateParts = dateString.split("-");
+
+      const year = parseInt(dateParts[0]);
+      const month = parseInt(dateParts[1]);
+      const day = parseInt(dateParts[2]);
+
+      const timeString = event.time;
+      const timeParts = timeString.split(":");
+
+      // Convert the parts to integers
+      let hours = parseInt(timeParts[0]);
+      let minutes = parseInt(timeParts[1]);
+
+      // Convert to 24-hour format if necessary
+      if (hours < 12 && timeString.includes("PM")) {
+          hours += 12;
+      }
+
+      const notificationDate = new Date(year, month-1, day, hours, minutes);
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: event.name,
+          body: "This notification was scheduled to be sent at a specific time.",
+        },
+        trigger: {
+          date: notificationDate,
+        },
+      });
+    });
+    
+    const notificationDate = new Date(2024, 4, 4, 7, 26);
 
     // Schedule the notification
     await Notifications.scheduleNotificationAsync({
@@ -101,29 +139,42 @@ const LoginScreen = () => {
 
 
   const handleLogin = async () => {
-    if (true) {
-      const data = {
+    if (true) { // You may want to adjust this condition based on your app's logic
+      const userdata = {
         email: email,
         pswd: password,
       };
-
+  
       try {
-        const response = await axios
-        .post(PORT_URL + "/user-login", data);
+        const response = await axios.post(PORT_URL + "/user-login", userdata);
         console.log(response.data.message);
-        if(response.data.message == "User loggedin"){
-          await scheduleReminder();
-          //console.log("data");
-          AsyncStorage.setItem("data", JSON.stringify(response.data.data));
-          //console.log(data);
+        
+        if (response.data.message === "User loggedin") {
+          const userDataFromServer = response.data.data;
+          console.log(userDataFromServer);
+          // Store user data in AsyncStorage
+          AsyncStorage.setItem("data", JSON.stringify(userDataFromServer))
+          .then(() => {
+            console.log("Email stored successfully");
+          })
+          .catch(error => {
+            console.log("Error storing email: ", error);
+          });
+
+          await scheduleReminder(userDataFromServer.email);
           navigation.navigate("TabNavigation");
+        } else {
+          // Handle unsuccessful login
+          console.log("Login failed: ", response.data.message);
         }
       } catch (error) {
-        console.log(error);
+        console.log("Error logging in: ", error);
       }
     }
   };
+  
 
+  
   const handleSignup = () => {
     navigation.navigate("Signup");
   };

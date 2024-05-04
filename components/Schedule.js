@@ -154,7 +154,7 @@ export default function Schedule({ visible, onClose }) {
       repeatVal = false;
     }
     const data = {
-      email: "sanaamuthan@gmail.com",
+      email: email,
       name: name,
       date: scheduleDate.toISOString().split("T")[0],
       time: formattedTime,
