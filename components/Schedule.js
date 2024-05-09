@@ -22,6 +22,7 @@ import {
 import moment from "moment";
 import Swiper from "react-native-swiper";
 import PORT_URL from "../ip";
+import usePushNotifications from "../notification";
 
 const { width } = Dimensions.get("window");
 
@@ -67,7 +68,7 @@ const ModalPoup = ({ visible, children }) => {
   );
 };
 
-export default function Schedule({ visible, onClose }) {
+export default function Schedule({ visible, onClose, passedDate }) {
   const swiper = useRef();
   const [value, setValue] = useState(new Date());
   const [week, setWeek] = useState(0);
@@ -77,12 +78,13 @@ export default function Schedule({ visible, onClose }) {
 
   const [showPicker, setShowPicker] = useState(false);
   const [scheduleDate, setScheduleDate] = useState(new Date());
-
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [scheduleTime, setScheduleTime] = useState(new Date());
   const [showTimePicker, setShowTimePicker] = useState(false); // State variable to manage time picker visibility
   const [selectedTime, setSelectedTime] = useState(new Date()); // State variable to store selected time
-
+  const [deletingItem, setDeletingItem] = useState(null);
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [email, setEmail] = useState("");
   const [time, setTime] = useState("");
 
@@ -104,6 +106,9 @@ export default function Schedule({ visible, onClose }) {
 
     setSelectedDays(updatedSelection);
   };
+
+  const { scheduleReminder, cancelScheduledNotification } =
+    usePushNotifications();
 
   const weeks = React.useMemo(() => {
     const start = moment().add(week, "weeks").startOf("week");
@@ -144,36 +149,71 @@ export default function Schedule({ visible, onClose }) {
     }
   };
 
+  useEffect(() => {
+    if (visible) {
+      console.log("passedData = " + passedDate);
+      getSchedule(passedDate);
+    }
+  }, [visible]);
+
   const handleSubmit = async () => {
     let repeatVal;
-    console.log(selectedValue);
     setAddVisible(false);
     if (selectedValue == "repeat") {
       repeatVal = true;
     } else {
       repeatVal = false;
     }
+
     const data = {
       email: email,
       name: name,
+      description: description, // Pass description here
       date: scheduleDate.toISOString().split("T")[0],
       time: formattedTime,
       repeat: repeatVal,
       repeatOnDays: selectedDays,
     };
 
+    console.log(description);
+    console.log(data);
     setSelectedDays([]);
+    setDescription("");
     setScheduleDate(new Date());
     setSelectedTime(new Date());
-    console.log(data);
 
     try {
       const response = await axios.post(PORT_URL + "/add", data);
-      console.log(response.data);
+      console.log("dfsdf");
+      console.log(response.data.data._id);
+      scheduleReminder(
+        response.data.data._id,
+        name,
+        description,
+        data.date,
+        data.time
+      )
+        .then(() => {
+          console.log("Notification scheduled successfully!");
+        })
+        .catch((error) => {
+          console.error("Failed to schedule notification:", error);
+        });
+
+      await getScheduleAfterDelete(data);
     } catch (error) {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    console.log(passedDate);
+  }, [passedDate]);
+
+  useEffect(() => {
+    console.log("value = " + value);
+    getSchedule(value);
+  }, [value]);
 
   useEffect(() => {
     // Define an async function to fetch data from AsyncStorage
@@ -183,7 +223,6 @@ export default function Schedule({ visible, onClose }) {
         //console.log(data.name);
         if (data) {
           const parsedData = JSON.parse(data);
-          //console.log("parse data ", parsedData);
           setEmail(parsedData.email);
         }
       } catch (error) {
@@ -196,8 +235,7 @@ export default function Schedule({ visible, onClose }) {
   }, []);
 
   const getSchedule = async (item) => {
-    setValue(item.date);
-
+    setValue(item);
     const formattedDate = moment(value, "ddd MMM DD YYYY").format("YYYY-MM-DD");
     console.log(formattedDate);
     const data = {
@@ -208,12 +246,38 @@ export default function Schedule({ visible, onClose }) {
 
     try {
       const response = await axios.post(PORT_URL + "/getSchedule", data);
+
       const sortedEvents = response.data.data.sort((a, b) => {
         const timeA = a.time.toLowerCase();
         const timeB = b.time.toLowerCase();
         return timeA.localeCompare(timeB);
       });
 
+      console.log(sortedEvents);
+      setScheduleData(sortedEvents);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getScheduleAfterDelete = async (item) => {
+    // Ensure that item.date is defined and is a valid Date object
+    const data = {
+      email: email,
+      date: item.date,
+    };
+    console.log(data);
+
+    try {
+      const response = await axios.post(PORT_URL + "/getSchedule", data);
+
+      const sortedEvents = response.data.data.sort((a, b) => {
+        const timeA = a.time.toLowerCase();
+        const timeB = b.time.toLowerCase();
+        return timeA.localeCompare(timeB);
+      });
+
+      console.log(sortedEvents);
       setScheduleData(sortedEvents);
     } catch (error) {
       console.log(error);
@@ -224,6 +288,36 @@ export default function Schedule({ visible, onClose }) {
     const currentTime = selected || selectedTime;
     setShowTimePicker(Platform.OS === "ios"); // For iOS, set time picker visibility based on platform behavior
     setSelectedTime(currentTime); // Update selected time
+  };
+
+  const toggleDeleteModal = (item) => {
+    //console.log(item);
+    setDeletingItem(item);
+    setDeleteModalVisible(!deleteModalVisible);
+  };
+
+  const deleteScheduleItem = async () => {
+    try {
+      //console.log(deletingItem._id);
+      const response = await axios.post(PORT_URL + "/deleteScheduleItem", {
+        _id: deletingItem._id,
+      });
+      if (response.data.status == "ok") {
+        console.log("Schedule item deleted successfully.");
+        // Call getSchedule to refresh the schedule list
+        cancelScheduledNotification(deletingItem._id)
+          .then(() => {
+            console.log("Notification deleted successfully!");
+          })
+          .catch((error) => {
+            console.error("Failed to schedule notification:", error);
+          });
+        await getScheduleAfterDelete(deletingItem);
+      }
+      toggleDeleteModal();
+    } catch (error) {
+      console.log("Error deleting schedule item:", error);
+    }
   };
 
   const currentTime = new Date(); // Get current time in local timezone
@@ -343,11 +437,11 @@ export default function Schedule({ visible, onClose }) {
                 </View>
                 <View
                   style={{
-                    marginTop: 2,
                     flexDirection: "row",
                     alignItems: "center",
-                    backgroundColor: "#97E7E1",
+                    backgroundColor: "#D4F1F4",
                     borderRadius: 10,
+                    padding: 6,
                   }}
                 >
                   <Text
@@ -389,6 +483,39 @@ export default function Schedule({ visible, onClose }) {
                 </View>
               </View>
             </View>
+            <View
+              style={{
+                marginTop: 5,
+                flexDirection: "column", // Change flexDirection to column
+                backgroundColor: "#D4F1F4",
+                borderRadius: 10,
+                padding: 10, // Increase padding for better spacing
+                marginBottom: 10, // Add marginBottom for spacing between views
+              }}
+            >
+              <Text
+                style={{
+                  marginBottom: 5, // Add marginBottom for spacing between text and input
+                }}
+              >
+                Description
+              </Text>
+              {/* Three lines for input space */}
+              <TextInput
+                style={{
+                  height: 100, // Adjust height to create three lines of input space
+                  textAlignVertical: "top", // Align text to top for multiline input
+                  backgroundColor: "#ffffff", // Add background color for better visibility
+                  borderRadius: 5, // Add borderRadius for better aesthetics
+                  paddingHorizontal: 10, // Add horizontal padding for better spacing
+                }}
+                onChangeText={(text) => setDescription(text)}
+                placeholder="Describe your event.."
+                multiline={true} // Enable multiline input
+                numberOfLines={3} // Set number of lines to 3
+              />
+            </View>
+
             <View style={styles.radioGroup}>
               <View style={styles.radioButton}>
                 <RadioButton.Android
@@ -481,7 +608,10 @@ export default function Schedule({ visible, onClose }) {
                     return (
                       <TouchableWithoutFeedback
                         key={dateIndex}
-                        onPress={() => getSchedule(item)}
+                        onPress={() => {
+                          console.log(item);
+                          getSchedule(item.date);
+                        }}
                       >
                         <View
                           style={[
@@ -523,17 +653,76 @@ export default function Schedule({ visible, onClose }) {
               <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <View style={styles.placeholderSchedule}>
                   {scheduleData.map((item, index) => (
-                    <View key={index} style={styles.scheduleItem}>
+                    <TouchableOpacity key={index} style={styles.scheduleItem}>
                       {/* Render text field for each item */}
-                      <Text style={{ fontWeight: "bold" }}>{item.name}</Text>
-                      <Text>{item.time}</Text>
-                      {/* Add more fields as needed */}
-                    </View>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <View>
+                          <Text style={{ fontWeight: "bold" }}>
+                            {item.name}
+                          </Text>
+                          <Text>{item.time}</Text>
+                          {/* Add more fields as needed */}
+                        </View>
+                        {/* Dustbin icon */}
+                        <TouchableOpacity
+                          onPress={() => toggleDeleteModal(item)}
+                        >
+                          <FontAwesome name="trash" size={24} color="#d1d1d1" />
+                        </TouchableOpacity>
+                      </View>
+                    </TouchableOpacity>
                   ))}
                 </View>
               </ScrollView>
             </View>
           </View>
+
+          <ModalPoup visible={deleteModalVisible}>
+            <View style={{ alignItems: "center" }}>
+              <Text style={{ fontSize: 18, marginBottom: 20 }}>
+                Delete Schedule?
+              </Text>
+              <View style={{ flexDirection: "row" }}>
+                <TouchableOpacity
+                  onPress={deleteScheduleItem}
+                  style={[styles.buttonDelete, { backgroundColor: "#FF6347" }]}
+                >
+                  <Text
+                    style={{
+                      color: "#fff",
+                      paddingHorizontal: 20,
+                      paddingVertical: 10,
+                    }}
+                  >
+                    Delete
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={toggleDeleteModal}
+                  style={[
+                    styles.buttonDelete,
+                    { backgroundColor: "#97E7E1", marginLeft: 20 },
+                  ]}
+                >
+                  <Text
+                    style={{
+                      color: "#fff",
+                      paddingHorizontal: 20,
+                      paddingVertical: 10,
+                    }}
+                  >
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ModalPoup>
 
           <View style={styles.footer}>
             {/* <TouchableOpacity
@@ -726,18 +915,25 @@ const styles = StyleSheet.create({
     borderWidth: 4,
     borderColor: "#ffffff",
     borderRadius: 9,
-    flexGrow: 1, // Default background color
+    flexGrow: 1,
     flexShrink: 1,
     flexBasis: 0,
   },
   scheduleItem: {
     padding: 10,
-    margin: 10,
+    margin: 7,
     paddingBottom: 10,
     paddingTop: 10,
     borderRadius: 5,
-    borderColor: "#000000",
-    borderWidth: 1,
+    backgroundColor: "#ffffff",
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
   },
   daycontainer: {
     flexDirection: "row",
@@ -753,5 +949,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginHorizontal: 2,
+  },
+  buttonDelete: {
+    borderRadius: 5,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

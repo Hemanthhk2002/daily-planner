@@ -82,19 +82,19 @@ app.post("/user-login", async (req, res) => {
 const schedule = mongoose.model("schedule");
 
 app.post("/add", async (req, res) => {
-  const { email, name, date, time, repeat } = req.body;
-  console.log(email);
+  const { email, name, description, date, time, repeat } = req.body;
 
   try {
-    await schedule.create({
-      email: email,
-      name: name,
-      date: date,
-      time: time,
-      repeat: repeat,
+    const temp = await schedule.create({
+      email,
+      name,
+      description,
+      date,
+      time,
+      repeat,
     });
-
-    res.send({ status: "ok", data: "Schedule created" });
+    console.log(temp);
+    res.send({ status: "ok", message: "Schedule created", data: temp });
   } catch (error) {
     console.log(error);
   }
@@ -181,7 +181,16 @@ app.get("/getStatus", async (req, res) => {
     if (req.headers["token"] != null) {
       if (jwt.verify(req.headers["token"], process.env.AUTHENTICATION_KEY)) {
         const userId = jwt.decode(req.headers["token"]).userId;
-        const allHabits = await Habit.find({ userId });
+        const allHabits = await Habit.aggregate([
+          {
+            $match: { userId: new mongoose.Types.ObjectId(userId) },
+          },
+          // {
+          //   $group:{
+          //     _id:"$"
+          //   }
+          // }
+        ]);
         res.status(200).json(allHabits);
       } else {
         res.status(401).json({ message: "Unauthorized please contact admin" });
@@ -247,6 +256,26 @@ const validation = (req, res, next) => {
     res.status(401).json({ message: "No token found" });
   }
 };
+
+app.post("/deleteScheduleItem", async (req, res) => {
+  const id = req.body._id; // Extract the _id from the request body
+
+  console.log(req.body._id);
+
+  try {
+    const data = await schedule.deleteOne({ _id: id }); // Use the _id in the query
+
+    //console.log(data);
+
+    res.send({ status: "ok", data: data });
+  } catch (error) {
+    console.log(error);
+
+    res
+      .status(500)
+      .send({ status: "error", message: "Failed to delete schedule item" });
+  }
+});
 
 //-----------------------------[ H A B I T ]------------------------
 

@@ -1,27 +1,44 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  ImageBackground,
-} from "react-native";
+import React, { useState } from "react";
+import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { Calendar } from "react-native-calendars";
 import Schedule from "./components/Schedule";
 
 const ScheduleScreen = () => {
-  const [visible, setVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const [scheduleModal, setScheduleModal] = useState(false);
+  const [passData, setPassData] = useState("");
 
   const handleDayPress = (date) => {
     setSelectedDate(date.dateString);
-    console.log(selectedDate);
+    const today = new Date(date.dateString); // Get current date and time
+    const yesterday = new Date(today); // Create a new date object with the current date and time
+    yesterday.setDate(today.getDate());
+    const offsetTime = yesterday.getTime() + 5.5 * 60 * 60 * 1000;
+    const adjustedDate = new Date(offsetTime);
+
+    const formattedDate = adjustedDate;
+    console.log(formattedDate);
+    setPassData(formattedDate);
     setScheduleModal(true);
   };
 
   const openScheduleModal = () => {
-    console.log(selectedDate);
+    console.log(new Date());
+    const today = new Date(); // Get current date and time
+    const yesterday = new Date(today); // Create a new date object with the current date and time
+    yesterday.setDate(today.getDate());
+    const offsetTime = yesterday.getTime() + 5.5 * 60 * 60 * 1000;
+    const adjustedDate = new Date(offsetTime);
+
+    const formattedDate = adjustedDate;
+
+    // Log the formatted date
+    console.log(formattedDate);
+
+    // Set the state passData with the formatted date
+    setPassData(formattedDate);
+
+    // Open the schedule modal
     setScheduleModal(true);
   };
 
@@ -36,7 +53,7 @@ const ScheduleScreen = () => {
       <Schedule
         visible={scheduleModal}
         onClose={closeScheduleModal}
-        selectedDate={selectedDate}
+        passedDate={passData} // Pass selectedDate as a prop
       />
 
       <Text style={styles.calendarText}>Calendar</Text>
@@ -59,7 +76,6 @@ const ScheduleScreen = () => {
           <Text style={styles.btnText}>My Schedule</Text>
         </View>
       </TouchableOpacity>
-      {/* </ImageBackground> */}
     </View>
   );
 };
