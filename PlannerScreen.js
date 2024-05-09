@@ -10,6 +10,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Ionicons, Feather, EvilIcons, FontAwesome } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import axios from "axios";
+import PORT_URL from "./ip";
 import {
   BottomModal,
   ModalTitle,
@@ -19,6 +20,7 @@ import {
 } from "react-native-modals";
 import { useFocusEffect } from "@react-navigation/native";
 import Create from "./components/Create";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const PlannerScreen = () => {
   const [option, setOption] = useState("Today");
@@ -44,7 +46,12 @@ const PlannerScreen = () => {
 
   const fetchHabits = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/habitslist");
+      const headers = {
+        token: await AsyncStorage.getItem("token"),
+        "Content-Type": "application/json",
+      };
+      console.log(headers);
+      const response = await axios.get(PORT_URL + "/habitslist", { headers });
       setHabits(response.data);
     } catch (error) {
       console.log("error fetching habits", error);
@@ -64,7 +71,7 @@ const PlannerScreen = () => {
         [currentDay]: true,
       };
 
-      await axios.put(`http://localhost:3000/habits/${habitId}/completed`, {
+      await axios.put(`${PORT_URL}/habits/${habitId}/completed`, {
         completed: updatedCompletion,
       });
 
@@ -76,50 +83,69 @@ const PlannerScreen = () => {
     }
   };
 
-  const filteredHabits = habits?.filter((habit) => {
-    return !habit.completed || !habit.completed[currentDay];
-  });
+  const filteredHabits = habits
+    ? habits.filter((habit) => {
+        return !habit.completed || !habit.completed[currentDay];
+      })
+    : [];
+
   console.log("filtered habbits", habits);
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   const deleteHabit = async () => {
     try {
       const habitId = selectedHabit._id;
+      const headers = {
+        token: await AsyncStorage.getItem("token"),
+        "Content-Type": "application/json",
+      };
 
-      const response = await axios.delete(
-        `http://localhost:3000/habits/${habitId}`
-      );
+      const response = await axios.delete(`${PORT_URL}/habits/${habitId}`, {
+        headers,
+      });
 
       if (response.status == 200) {
-        await fetchHabits();
-        setHabits(response.data);
+        // await fetchHabits();
+        setHabits((preHabits) => preHabits.filter((h) => h._id != habitId));
+        // setHabits(response.data);
       }
     } catch (error) {
       console.log("error", error);
     }
   };
   const getCompletedDays = (completedObj) => {
-      if(completedObj && typeof completedObj === "object"){
-          return Object.keys(completedObj).filter((day) => completedObj[day]);
-      }
+    if (completedObj && typeof completedObj === "object") {
+      return Object.keys(completedObj).filter((day) => completedObj[day]);
+    }
 
-      return [];
-  }
-
-  const closeCreateModal = () => {
-    setCreateModalVisible(false);
+    return [];
   };
+
+  // const closeCreateModal = () => {
+
+  // };
 
   // Function to open create habit modal
   const openCreateModal = () => {
     setCreateModalVisible(true);
   };
-  
+
+  const addHabit = (habit) => {
+    setHabits((preHabits) => {
+      return [...preHabits, habit];
+    });
+  };
 
   return (
     <>
       {/* <Create visible={isCreateModalVisible} onClose={closeCreateModal}/> */}
-      <Create visible={isCreateModalVisible} onClose={closeCreateModal}/>
+      <Create
+        visible={isCreateModalVisible}
+        // onClose={() => setCreateModalVisible(false)}
+        onModalClose={fetchHabits}
+        setCreateModalVisible={setCreateModalVisible}
+        onCallback={(newHabit) => addHabit(newHabit)}
+      />
       <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 10 }}>
         <View
           style={{
@@ -196,6 +222,7 @@ const PlannerScreen = () => {
             <View>
               {filteredHabits?.map((item, index) => (
                 <Pressable
+                  key={index}
                   onLongPress={() => handleLongPress(item._id)}
                   style={{
                     marginVertical: 10,
@@ -293,7 +320,7 @@ const PlannerScreen = () => {
                   >
                     {habit.title}
                   </Text>
-                  <Text style={{ color: "white" }}>{habit.repeatMode}</Text>   
+                  <Text style={{ color: "white" }}>{habit.repeatMode}</Text>
                 </View>
 
                 <View
@@ -370,13 +397,17 @@ const PlannerScreen = () => {
                     </Text>
                     <Text style={{ color: "white" }}>{habit.repeatMode}</Text>
                   </View>
-
-                
                 </Pressable>
 
-                <View style={{flexDirection:"row",alignItems:"center",justifyContent:"space-between"}}>
-                    <Text>Completed On</Text>
-                    <Text>{getCompletedDays(habit.completed).join(", ")}</Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Text>Completed On</Text>
+                  <Text>{getCompletedDays(habit.completed).join(", ")}</Text>
                 </View>
               </>
             ))}
@@ -470,7 +501,6 @@ const PlannerScreen = () => {
     </>
   );
 };
-
 
 const styles = StyleSheet.create({});
 

@@ -1,25 +1,22 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "./LoginScreen";
 import SignupScreen from "./SignupScreen";
 import SplashScreen from "./SplashScreen";
 import TabNavigation from "./Navigation/TabNavigation";
-import { useEffect, useState } from "react";
 
 const Stack = createStackNavigator();
 
 const App = () => {
-  const [loading, setLoading] = useState(true)
-    useEffect(() => {
-        setTimeout(() => setLoading(false), 2500)
-    }, [])
-    if (loading) {
-        return <SplashScreen/>
-    }
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator initialRouteName="Splash">
+        <Stack.Screen
+          name="Splash"
+          component={SplashScreen}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen
           name="Login"
           component={LoginScreen}

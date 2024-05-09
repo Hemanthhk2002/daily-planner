@@ -1,12 +1,15 @@
 const mongoose = require("mongoose");
 
-const scheduleSchema = new mongoose.Schema({
-  email: String,
-  name: String,
-  date: String,
-  time: String,
-  repeat: Boolean,
-});
+const scheduleSchema = new mongoose.Schema(
+  {
+    email: String,
+    name: String,
+    date: String,
+    time: String,
+    repeat: Boolean,
+  },
+  { timestamps: true }
+);
 
 mongoose.model("schedule", scheduleSchema);
 
@@ -40,6 +43,3 @@ mongoose.model("schedule", scheduleSchema);
 // });
 
 // module.exports = mongoose.model('schedule', scheduleSchema);
-
-
-

@@ -25,11 +25,10 @@ Notifications.setNotificationHandler({
   }),
 });
 
-
 const LoginScreen = () => {
   const navigation = useNavigation();
-  const [email, setemail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setemail] = useState("sanaamuthan@gmail.com");
+  const [password, setPassword] = useState("123");
   const [rememberMe, setRememberMe] = useState(false);
   const [expoPushToken, setExpoPushToken] = useState("");
 
@@ -67,7 +66,7 @@ const LoginScreen = () => {
         alert("Failed to get push token for push notification!");
         return;
       }
-      
+
       token = (
         await Notifications.getExpoPushTokenAsync({
           projectId: "9b313f5b-aab4-438b-89ff-b704955496f8",
@@ -84,12 +83,12 @@ const LoginScreen = () => {
     //console.log("Scheduling push notification...");
     const data = {
       email: email,
-    }
+    };
 
     const response = await axios.post(PORT_URL + "/reminder", data);
     const sortedEvents = response.data.data;
 
-    sortedEvents.forEach(async (event, index) =>  {
+    sortedEvents.forEach(async (event, index) => {
       const dateString = event.date;
       const dateParts = dateString.split("-");
 
@@ -106,10 +105,10 @@ const LoginScreen = () => {
 
       // Convert to 24-hour format if necessary
       if (hours < 12 && timeString.includes("PM")) {
-          hours += 12;
+        hours += 12;
       }
 
-      const notificationDate = new Date(year, month-1, day, hours, minutes);
+      const notificationDate = new Date(year, month - 1, day, hours, minutes);
       await Notifications.scheduleNotificationAsync({
         content: {
           title: event.name,
@@ -120,7 +119,7 @@ const LoginScreen = () => {
         },
       });
     });
-    
+
     const notificationDate = new Date(2024, 4, 4, 7, 26);
 
     // Schedule the notification
@@ -137,30 +136,30 @@ const LoginScreen = () => {
     console.log("Notification scheduled successfully!");
   };
 
-
   const handleLogin = async () => {
-    if (true) { // You may want to adjust this condition based on your app's logic
+    if (true) {
+      // You may want to adjust this condition based on your app's logic
       const userdata = {
         email: email,
         pswd: password,
       };
-  
+
       try {
         const response = await axios.post(PORT_URL + "/user-login", userdata);
         console.log(response.data.message);
-        
+
         if (response.data.message === "User loggedin") {
-          const userDataFromServer = response.data.data;
+          const userDataFromServer = response.data;
           console.log(userDataFromServer);
           // Store user data in AsyncStorage
-          AsyncStorage.setItem("data", JSON.stringify(userDataFromServer))
-          .then(() => {
-            console.log("Email stored successfully");
-          })
-          .catch(error => {
-            console.log("Error storing email: ", error);
-          });
-
+          AsyncStorage.setItem("data", JSON.stringify(userDataFromServer.data))
+            .then(() => {
+              console.log("Email stored successfully");
+            })
+            .catch((error) => {
+              console.log("Error storing email: ", error);
+            });
+          await AsyncStorage.setItem("token", userDataFromServer.token);
           await scheduleReminder(userDataFromServer.email);
           navigation.navigate("TabNavigation");
         } else {
@@ -172,9 +171,7 @@ const LoginScreen = () => {
       }
     }
   };
-  
 
-  
   const handleSignup = () => {
     navigation.navigate("Signup");
   };
@@ -186,9 +183,9 @@ const LoginScreen = () => {
     >
       <View style={styles.semiCircle} />
       <Image
-        source={require('./assets/images/calendar.png')}
+        source={require("./assets/images/calendar.png")}
         style={styles.image}
-        resizeMode="contain" 
+        resizeMode="contain"
       />
       <Text style={styles.logo}>Welcome Back</Text>
       <View style={styles.inputView}>
@@ -231,7 +228,7 @@ const LoginScreen = () => {
   );
 };
 
-const windowWidth = Dimensions.get('window').width;
+const windowWidth = Dimensions.get("window").width;
 
 const styles = StyleSheet.create({
   container: {
@@ -241,7 +238,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
   },
   semiCircle: {
-    width: windowWidth+100,
+    width: windowWidth + 100,
     height: windowWidth / 1.4,
     backgroundColor: "#97E7E1",
     borderBottomLeftRadius: windowWidth,
@@ -315,7 +312,7 @@ const styles = StyleSheet.create({
     color: "#97E7E1",
   },
   image: {
-    width: 250, 
+    width: 250,
     height: 250,
     position: "absolute",
     top: 25,
