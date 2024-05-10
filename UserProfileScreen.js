@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
-import { Avatar, Badge, Text } from "@react-native-material/core";
-import MyScrollView from "./MyScrollView"; // Import the MyScrollView component
+import { StyleSheet, View, TouchableOpacity, Modal, Text } from "react-native";
+import { Avatar, Badge } from "@react-native-material/core";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { LineChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
+import { LineChart } from "react-native-chart-kit";
+import MyScrollView from "./MyScrollView"; // Import the MyScrollView component
 
 const UserProfileScreen = () => {
   const [userName, setUserName] = useState("");
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     // Define an async function to fetch data from AsyncStorage
@@ -30,6 +31,25 @@ const UserProfileScreen = () => {
 
   const pendingTasks = [10, 20, 30, 25, 15];
   const completedTasks = [5, 15, 25, 20, 10];
+
+  // Function to handle logout and toggle logout modal visibility
+  const handleLogout = () => {
+    setShowLogoutModal(true);
+  };
+
+  // Function to confirm logout
+  const confirmLogout = async () => {
+    // Clear user data or perform logout action
+    try {
+      // Clear AsyncStorage data or perform logout action
+      await AsyncStorage.removeItem("data");
+      // Redirect to login screen or perform other logout actions
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+    // Close the logout modal
+    setShowLogoutModal(false);
+  };
 
   return (
     <ScrollView>
@@ -127,6 +147,38 @@ const UserProfileScreen = () => {
         />
 
         <MyScrollView />
+
+        {/* Logout Button */}
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </TouchableOpacity>
+
+        {/* Logout Confirmation Modal */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={showLogoutModal}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalText}>Are you sure you want to logout?</Text>
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={[styles.modalButton, { backgroundColor: "#FF6347" }]}
+                  onPress={confirmLogout}
+                >
+                  <Text style={styles.modalButtonText}>Logout</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, { backgroundColor: "#2ECC71" }]}
+                  onPress={() => setShowLogoutModal(false)}
+                >
+                  <Text style={styles.modalButtonText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     </ScrollView>
   );
@@ -178,6 +230,50 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 10,
+  },
+  logoutButton: {
+    backgroundColor: "#FF6347",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 15,
+    borderRadius: 10,
+    marginTop: 20,
+  },
+  logoutButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "#FFFFFF",
+    padding: 20,
+    borderRadius: 10,
+    elevation: 5,
+    alignItems: "center",
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  modalButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  modalButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
   },
 });
 
