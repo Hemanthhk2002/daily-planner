@@ -87,7 +87,6 @@ export default function Schedule({ visible, onClose, passedDate }) {
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [email, setEmail] = useState("");
-    const [time, setTime] = useState("");
 
     const days = ["Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun"];
 
@@ -170,6 +169,7 @@ export default function Schedule({ visible, onClose, passedDate }) {
             email: email,
             name: name,
             description: description, // Pass description here
+            category: category,
             date: scheduleDate.toISOString().split("T")[0],
             time: formattedTime,
             repeat: repeatVal,
@@ -201,7 +201,8 @@ export default function Schedule({ visible, onClose, passedDate }) {
                     console.error("Failed to schedule notification:", error);
                 });
 
-            await getScheduleAfterDelete(data);
+            console.log("category = " + category)
+            await getCategorizedSchedule(category);
         } catch (error) {
             console.log(error);
         }
@@ -285,53 +286,6 @@ export default function Schedule({ visible, onClose, passedDate }) {
         }
     };
 
-    const onTimeChange = (event, selected) => {
-        const currentTime = selected || selectedTime;
-        setShowTimePicker(Platform.OS === "ios"); // For iOS, set time picker visibility based on platform behavior
-        setSelectedTime(currentTime); // Update selected time
-    };
-
-    const toggleDeleteModal = (item) => {
-        //console.log(item);
-        setDeletingItem(item);
-        setDeleteModalVisible(!deleteModalVisible);
-    };
-
-    const deleteScheduleItem = async () => {
-        try {
-            //console.log(deletingItem._id);
-            const response = await axios.post(PORT_URL + "/deleteScheduleItem", {
-                _id: deletingItem._id,
-            });
-            if (response.data.status == "ok") {
-                console.log("Schedule item deleted successfully.");
-                // Call getSchedule to refresh the schedule list
-                cancelScheduledNotification(deletingItem._id)
-                    .then(() => {
-                        console.log("Notification deleted successfully!");
-                    })
-                    .catch((error) => {
-                        console.error("Failed to schedule notification:", error);
-                    });
-                await getScheduleAfterDelete(deletingItem);
-            }
-            toggleDeleteModal();
-        } catch (error) {
-            console.log("Error deleting schedule item:", error);
-        }
-    };
-
-    const currentTime = new Date(); // Get current time in local timezone
-    const hours = currentTime.getHours(); // Extract hours
-
-    let formattedHours = hours % 12;
-    if (formattedHours === 0) {
-        formattedHours = 12;
-    }
-    if (hours >= 12) {
-        meridiem = "PM";
-    }
-
     const getCategorizedSchedule = async (item) => {
         const formattedDate = moment(value, "ddd MMM DD YYYY").format("YYYY-MM-DD");
         console.log(formattedDate);
@@ -381,6 +335,53 @@ export default function Schedule({ visible, onClose, passedDate }) {
         }
     }
 
+    const onTimeChange = (event, selected) => {
+        const currentTime = selected || selectedTime;
+        setShowTimePicker(Platform.OS === "ios"); // For iOS, set time picker visibility based on platform behavior
+        setSelectedTime(currentTime); // Update selected time
+    };
+
+    const toggleDeleteModal = (item) => {
+        //console.log(item);
+        setDeletingItem(item);
+        setDeleteModalVisible(!deleteModalVisible);
+    };
+
+    const deleteScheduleItem = async () => {
+        try {
+            //console.log(deletingItem._id);
+            toggleDeleteModal();
+            const response = await axios.post(PORT_URL + "/deleteScheduleItem", {
+                _id: deletingItem._id,
+            });
+            if (response.data.status == "ok") {
+                console.log("Schedule item deleted successfully.");
+                // Call getSchedule to refresh the schedule list
+                cancelScheduledNotification(deletingItem._id)
+                    .then(() => {
+                        console.log("Notification deleted successfully!");
+                    })
+                    .catch((error) => {
+                        console.error("Failed to schedule notification:", error);
+                    });
+                await getScheduleAfterDelete(deletingItem);
+            }
+        } catch (error) {
+            console.log("Error deleting schedule item:", error);
+        }
+    };
+
+    const currentTime = new Date(); // Get current time in local timezone
+    const hours = currentTime.getHours(); // Extract hours
+
+    let formattedHours = hours % 12;
+    if (formattedHours === 0) {
+        formattedHours = 12;
+    }
+    if (hours >= 12) {
+        meridiem = "PM";
+    }
+
     const formattedTime = selectedTime.toLocaleTimeString("en-US", {
         hour: "numeric",
         minute: "2-digit",
@@ -422,7 +423,6 @@ export default function Schedule({ visible, onClose, passedDate }) {
                                     <Text
                                         style={{
                                             marginRight: 10,
-                                            // backgroundColor: "#97E7E1",
                                             padding: 3,
                                             borderRadius: 2,
                                         }}
@@ -497,7 +497,6 @@ export default function Schedule({ visible, onClose, passedDate }) {
                                     <Text
                                         style={{
                                             marginRight: 10,
-                                            // backgroundColor: "#97E7E1",
                                             padding: 3,
                                             borderRadius: 2,
                                             paddingRight: 10,
@@ -553,8 +552,8 @@ export default function Schedule({ visible, onClose, passedDate }) {
                             {/* Three lines for input space */}
                             <TextInput
                                 style={{
-                                    height: 100, // Adjust height to create three lines of input space
-                                    textAlignVertical: "top", // Align text to top for multiline input
+                                    height: 100,
+                                    textAlignVertical: "top",
                                     backgroundColor: "#ffffff", // Add background color for better visibility
                                     borderRadius: 5, // Add borderRadius for better aesthetics
                                     paddingHorizontal: 10, // Add horizontal padding for better spacing
@@ -565,6 +564,34 @@ export default function Schedule({ visible, onClose, passedDate }) {
                                 numberOfLines={3} // Set number of lines to 3
                             />
                         </View>
+
+                        <View style={{ flexDirection: "row", alignItems: "center", marginTop: 10 }}>
+                            <Text
+                                style={{ marginBottom: 5, padding: 3, borderRadius: 5, backgroundColor: category === "personal" ? '#D4F1F4' : 'white' }}
+                                onPress={() => setCategory("personal")}
+                            >
+                                Personal
+                            </Text>
+                            <Text
+                                style={{ marginLeft: 10, padding: 3, borderRadius: 5, backgroundColor: category === "work" ? '#D4F1F4' : 'white' }}
+                                onPress={() => setCategory("work")}
+                            >
+                                Work
+                            </Text>
+                            <Text
+                                style={{ marginLeft: 10, padding: 3, borderRadius: 5, backgroundColor: category === "family" ? '#D4F1F4' : 'white' }}
+                                onPress={() => setCategory("family")}
+                            >
+                                Family
+                            </Text>
+                            <Text
+                                style={{ marginLeft: 10, padding: 3, borderRadius: 5, backgroundColor: category === "others" ? '#D4F1F4' : 'white' }}
+                                onPress={() => setCategory("others")}
+                            >
+                                Others
+                            </Text>
+                        </View>
+
 
                         <View style={styles.radioGroup}>
                             <View style={styles.radioButton}>
@@ -599,7 +626,7 @@ export default function Schedule({ visible, onClose, passedDate }) {
                                                 styles.dayButton,
                                                 {
                                                     backgroundColor: selectedDays.includes(item)
-                                                        ? "#97E7E1"
+                                                        ? "#D4F1F4"
                                                         : "#E0E0E0",
                                                 },
                                             ]}
