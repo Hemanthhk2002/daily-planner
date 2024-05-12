@@ -82,13 +82,14 @@ app.post("/user-login", async (req, res) => {
 const schedule = mongoose.model("schedule");
 
 app.post("/add", async (req, res) => {
-  const { email, name, description, date, time, repeat } = req.body;
+  const { email, name, description, category, date, time, repeat } = req.body;
 
   try {
     const temp = await schedule.create({
       email,
       name,
       description,
+      category,
       date,
       time,
       repeat,
@@ -106,6 +107,19 @@ app.post("/getSchedule", async (req, res) => {
 
   try {
     const data = await schedule.find({ email: email, date: date });
+    console.log(data);
+    res.send({ status: "ok", data: data });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.post("/getCategorizedSchedule", async (req, res) => {
+  const { email, date, category } = req.body;
+  console.log(category);
+
+  try {
+    const data = await schedule.find({ email: email, date: date, category: category });
     console.log(data);
     res.send({ status: "ok", data: data });
   } catch (error) {

@@ -4,6 +4,7 @@ const scheduleSchema = new mongoose.Schema({
   email: String,
   name: String,
   description: String,
+  category: String,
   date: String,
   time: String,
   repeat: Boolean,

@@ -36,6 +36,7 @@ const ScheduleScreen = () => {
     console.log(formattedDate);
 
     // Set the state passData with the formatted date
+    console.log(formattedDate);
     setPassData(formattedDate);
 
     // Open the schedule modal
