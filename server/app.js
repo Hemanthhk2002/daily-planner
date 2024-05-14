@@ -5,6 +5,7 @@ const logindb = require("./userDetails");
 const scheduleSchema = require("./scheduleDetails");
 const jwt = require("jsonwebtoken");
 const Habit = require("./habit");
+const Status = require("./status");
 const donenv = require("dotenv").config();
 
 const cors = require("cors");
@@ -101,15 +102,21 @@ app.post("/add", async (req, res) => {
 });
 
 app.post("/getSchedule", async (req, res) => {
-  const { email, date } = req.body;
-  console.log(email);
-
   try {
-    const data = await schedule.find({ email: email, date: date });
-    console.log(data);
-    res.send({ status: "ok", data: data });
+    if (req.headers["token"] != null) {
+      if (jwt.verify(req.headers["token"], process.env.AUTHENTICATION_KEY)) {
+        const userId = jwt.decode(req.headers["token"]).userId;
+        const { email, date } = req.body;
+        const data = await schedule.find({ email: email, date: date });
+        res.status(200).json({ status: "ok", data: data });
+      } else {
+        res.status(401).json({ message: "Unauthorized please contact admin" });
+      }
+    } else {
+      res.status(401).json({ message: "No token found" });
+    }
   } catch (error) {
-    console.log(error);
+    res.status(500).json({ error: "Network error" });
   }
 });
 
@@ -128,8 +135,6 @@ app.post("/reminder", async (req, res) => {
 //-----------------------------[ H A B I T ]------------------------
 
 app.post("/habits", async (req, res) => {
-  console.log(req.headers);
-  console.log("habits....", req.body);
   try {
     if (req.headers["token"] != null) {
       if (jwt.verify(req.headers["token"], process.env.AUTHENTICATION_KEY)) {
@@ -145,6 +150,11 @@ app.post("/habits", async (req, res) => {
         });
 
         const savedHabit = await newHabit.save();
+        console.log(savedHabit._id);
+        const saveStatus = await Status({
+          userId,
+          habitId: savedHabit._id,
+        }).save();
         res.status(200).json(savedHabit);
       } else {
         res.status(401).json({ message: "Unauthorized please contact admin" });
@@ -181,17 +191,19 @@ app.get("/getStatus", async (req, res) => {
     if (req.headers["token"] != null) {
       if (jwt.verify(req.headers["token"], process.env.AUTHENTICATION_KEY)) {
         const userId = jwt.decode(req.headers["token"]).userId;
-        const allHabits = await Habit.aggregate([
-          {
-            $match: { userId: new mongoose.Types.ObjectId(userId) },
-          },
-          // {
-          //   $group:{
-          //     _id:"$"
-          //   }
-          // }
-        ]);
-        res.status(200).json(allHabits);
+        const allStatus = await Status.find({ userId });
+        let pendingHabitsCount = 0;
+        let completedHabitsCount = 0;
+        for (let i = 0; i < allStatus.length; i++) {
+          const habit = allStatus[i];
+          if (habit.status == "completed") {
+            completedHabitsCount++;
+          } else {
+            pendingHabitsCount++;
+          }
+        }
+        res.status(200).json({ pendingHabitsCount, completedHabitsCount });
+        // res.status(200).json(allStatus);
       } else {
         res.status(401).json({ message: "Unauthorized please contact admin" });
       }
@@ -204,21 +216,39 @@ app.get("/getStatus", async (req, res) => {
 });
 
 app.put("/habits/:habitId/completed", async (req, res) => {
-  const habitId = req.params.habitId;
-  const updatedCompletion = req.body.completed; // The updated completion object
-
   try {
-    const updatedHabit = await Habit.findByIdAndUpdate(
-      habitId,
-      { completed: updatedCompletion },
-      { new: true }
-    );
+    if (req.headers["token"] != null) {
+      if (jwt.verify(req.headers["token"], process.env.AUTHENTICATION_KEY)) {
+        const userId = jwt.decode(req.headers["token"]).userId;
+        const habitId = req.params.habitId;
+        const updatedCompletion = req.body.completed;
+        const updatedHabit = await Habit.findByIdAndUpdate(
+          habitId,
+          { completed: updatedCompletion },
+          { new: true }
+        );
 
-    if (!updatedHabit) {
-      return res.status(404).json({ error: "Habit not found" });
+        if (!updatedHabit) {
+          return res.status(404).json({ error: "Habit not found" });
+        } else {
+          await Status.findOneAndUpdate({
+            habitId,
+            $set: { status: "completed" },
+            $new: true,
+          })
+            .then((rel) => {
+              return res.status(200).json(updatedHabit);
+            })
+            .catch((err) => {
+              return res.status(500).json({ error: error.message });
+            });
+        }
+      } else {
+        res.status(401).json({ message: "Unauthorized please contact admin" });
+      }
+    } else {
+      res.status(401).json({ message: "No token found" });
     }
-
-    return res.status(200).json(updatedHabit);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -232,6 +262,7 @@ app.delete("/habits/:habitId", async (req, res) => {
         const { habitId } = req.params;
 
         await Habit.findByIdAndDelete(habitId);
+        await Status.findOneAndDelete({ habitId });
 
         res.status(200).json({ message: "Habit deleted succusfully" });
       } else {

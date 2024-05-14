@@ -27,8 +27,8 @@ Notifications.setNotificationHandler({
 
 const LoginScreen = () => {
   const navigation = useNavigation();
-  const [email, setemail] = useState("sanaamuthan@gmail.com");
-  const [password, setPassword] = useState("123");
+  const [email, setemail] = useState();
+  const [password, setPassword] = useState();
   const [rememberMe, setRememberMe] = useState(false);
   const [expoPushToken, setExpoPushToken] = useState("");
 
@@ -150,9 +150,12 @@ const LoginScreen = () => {
 
         if (response.data.message === "User loggedin") {
           const userDataFromServer = response.data;
-          console.log(userDataFromServer);
+          console.log("Login Console", userDataFromServer);
           // Store user data in AsyncStorage
-          AsyncStorage.setItem("data", JSON.stringify(userDataFromServer.data))
+          await AsyncStorage.setItem(
+            "data",
+            JSON.stringify(userDataFromServer.data)
+          )
             .then(() => {
               console.log("Email stored successfully");
             })

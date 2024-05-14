@@ -1,14 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
-import { Avatar, Badge, Text } from "@react-native-material/core";
-import MyScrollView from "./MyScrollView"; // Import the MyScrollView component
+import {
+  StyleSheet,
+  View,
+  Image,
+  TouchableOpacity,
+  Modal,
+  Text,
+} from "react-native";
+import { Avatar, Badge } from "@react-native-material/core";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { LineChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
+import { LineChart } from "react-native-chart-kit";
+import axios from "axios";
+import PORT_URL from "./ip";
+import MyScrollView from "./MyScrollView"; // Import the MyScrollView component
+import { useNavigation, CommonActions } from "@react-navigation/native";
 
 const UserProfileScreen = () => {
+  const navigation = useNavigation();
   const [userName, setUserName] = useState("");
+  const [habitPendingCount, setHabitPendingCount] = useState(0);
+  const [habitCompletedCount, setHabitCompletedCount] = useState(0);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     // Define an async function to fetch data from AsyncStorage
@@ -17,6 +31,7 @@ const UserProfileScreen = () => {
         const data = await AsyncStorage.getItem("data");
         if (data) {
           const parsedData = JSON.parse(data);
+          console.log(parsedData.name);
           setUserName(parsedData.name);
         }
       } catch (error) {
@@ -26,14 +41,55 @@ const UserProfileScreen = () => {
 
     // Call the fetchData function when the component mounts
     fetchData();
-  }, []); // Empty dependency array to ensure the effect runs only once
+    fetchHabitCount();
+  }, []);
+
+  const fetchHabitCount = async () => {
+    try {
+      const headers = {
+        token: await AsyncStorage.getItem("token"),
+        "Content-Type": "application/json",
+      };
+      const response = await axios.get(PORT_URL + "/getStatus", { headers });
+      console.log("Testing fine");
+      setHabitPendingCount(response.data.pendingHabitsCount);
+      setHabitCompletedCount(response.data.completedHabitsCount);
+    } catch (error) {
+      console.log("error fetching habits", error);
+    }
+  };
 
   const pendingTasks = [10, 20, 30, 25, 15];
   const completedTasks = [5, 15, 25, 20, 10];
 
+  // Function to handle logout and toggle logout modal visibility
+  const handleLogout = () => {
+    setShowLogoutModal(true);
+  };
+
+  // Function to confirm logout
+
+  const confirmLogout = async () => {
+    // Define navigation within the function
+    try {
+      await AsyncStorage.removeItem("data");
+      await AsyncStorage.removeItem("token");
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: "Splash" }],
+        })
+      );
+      // navigation.navigate("Login");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+    setShowLogoutModal(false);
+  };
+
   return (
-    <ScrollView>
-      <View style={styles.container}>
+    <View style={styles.container}>
+      <ScrollView>
         <View style={styles.userview}>
           <Avatar
             image={{ uri: "https://mui.com/static/images/avatar/1.jpg" }}
@@ -60,13 +116,13 @@ const UserProfileScreen = () => {
 
         <View style={{ flexDirection: "row", gap: 20 }}>
           <View style={styles.ctasks}>
-            <Text variant="h6">0</Text>
+            <Text variant="h6">{habitCompletedCount}</Text>
             <Text style={{ fontSize: 18, marginTop: 10 }} variant="h6">
               Completed Tasks
             </Text>
           </View>
           <View style={styles.ctasks}>
-            <Text variant="h6">0</Text>
+            <Text variant="h6">{habitPendingCount}</Text>
             <Text style={{ fontSize: 18, marginTop: 10 }} variant="h6">
               Pending Tasks
             </Text>
@@ -127,8 +183,60 @@ const UserProfileScreen = () => {
         />
 
         <MyScrollView />
-      </View>
-    </ScrollView>
+
+        {/* Logout Button */}
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </TouchableOpacity>
+
+        {/* Logout Confirmation Modal */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={showLogoutModal}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <View style={{}}>
+                <Image
+                  source={require("./images/logoutimage.jpg")}
+                  style={styles.logoutimg}
+                />
+              </View>
+
+              <Text
+                style={{
+                  fontWeight: "700",
+                  fontSize: 20,
+                  marginBottom: 5,
+                }}
+              >
+                Comeback Soon 😇
+              </Text>
+
+              <Text style={styles.modalText}>
+                Are you sure you want to logout?
+              </Text>
+
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={[styles.modalButton, { backgroundColor: "#FF6347" }]}
+                  onPress={confirmLogout}
+                >
+                  <Text style={styles.modalButtonText}>Logout</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, { backgroundColor: "#2ECC71" }]}
+                  onPress={() => setShowLogoutModal(false)}
+                >
+                  <Text style={styles.modalButtonText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -178,6 +286,55 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 10,
+  },
+  logoutButton: {
+    backgroundColor: "#FF6347",
+    width: 325,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 15,
+    borderRadius: 10,
+    marginTop: 20,
+    marginHorizontal: 7,
+  },
+  logoutButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "#FFFFFF",
+    padding: 20,
+    borderRadius: 10,
+    elevation: 5,
+    alignItems: "center",
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 15,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "75%",
+  },
+  modalButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  modalButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+  },
+  logoutimg: {
+    width: 280,
+    height: 250,
   },
 });
 

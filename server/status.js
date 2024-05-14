@@ -6,13 +6,16 @@ const habitSchema = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       required: true,
       immutable: true,
-      ref: "logindetails",
+    },
+    status: {
+      type: String,
+      enum: ["completed", "pending"],
+      default: "pending",
     },
     habitId: {
       type: mongoose.Types.ObjectId,
       required: true,
       immutable: true,
-      ref: "habits",
     },
     createdAt: {
       type: Date,
@@ -22,6 +25,6 @@ const habitSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Habit = mongoose.model("Habit", habitSchema);
+const Status = mongoose.model("status", habitSchema);
 
-module.exports = Habit;
+module.exports = Status;

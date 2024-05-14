@@ -71,9 +71,18 @@ const PlannerScreen = () => {
         [currentDay]: true,
       };
 
-      await axios.put(`${PORT_URL}/habits/${habitId}/completed`, {
-        completed: updatedCompletion,
-      });
+      const headers = {
+        token: await AsyncStorage.getItem("token"),
+        "Content-Type": "application/json",
+      };
+
+      await axios.put(
+        `${PORT_URL}/habits/${habitId}/completed`,
+        {
+          completed: updatedCompletion,
+        },
+        { headers }
+      );
 
       await fetchHabits();
 
@@ -146,7 +155,7 @@ const PlannerScreen = () => {
         setCreateModalVisible={setCreateModalVisible}
         onCallback={(newHabit) => addHabit(newHabit)}
       />
-      <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 10 }}>
+      <View style={{ flex: 1, backgroundColor: "white", padding: 10 }}>
         <View
           style={{
             flexDirection: "row",
@@ -165,7 +174,7 @@ const PlannerScreen = () => {
         </View>
 
         <Text style={{ marginTop: 5, fontSize: 23, fontWeight: "500" }}>
-          Habits
+          habits
         </Text>
 
         <View
@@ -219,30 +228,32 @@ const PlannerScreen = () => {
 
         {option == "Today" &&
           (filteredHabits?.length > 0 ? (
-            <View>
-              {filteredHabits?.map((item, index) => (
-                <Pressable
-                  key={index}
-                  onLongPress={() => handleLongPress(item._id)}
-                  style={{
-                    marginVertical: 10,
-                    backgroundColor: item?.color,
-                    padding: 12,
-                    borderRadius: 24,
-                  }}
-                >
-                  <Text
+            <ScrollView>
+              <View>
+                {filteredHabits?.map((item, index) => (
+                  <Pressable
+                    key={index}
+                    onLongPress={() => handleLongPress(item._id)}
                     style={{
-                      textAlign: "center",
-                      fontWeight: "500",
-                      color: "white",
+                      marginVertical: 10,
+                      backgroundColor: item?.color,
+                      padding: 12,
+                      borderRadius: 24,
                     }}
                   >
-                    {item?.title}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
+                    <Text
+                      style={{
+                        textAlign: "center",
+                        fontWeight: "500",
+                        color: "white",
+                      }}
+                    >
+                      {item?.title}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </ScrollView>
           ) : (
             <View
               style={{
@@ -298,79 +309,9 @@ const PlannerScreen = () => {
           ))}
 
         {option == "Weekly" && (
-          <View>
-            {habits?.map((habit, index) => (
-              <Pressable
-                style={{
-                  marginVertical: 10,
-                  backgroundColor: habit.color,
-                  padding: 15,
-                  borderRadius: 24,
-                }}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Text
-                    style={{ fontSize: 15, fontWeight: "500", color: "white" }}
-                  >
-                    {habit.title}
-                  </Text>
-                  <Text style={{ color: "white" }}>{habit.repeatMode}</Text>
-                </View>
-
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-evenly",
-                    marginVertical: 10,
-                  }}
-                >
-                  {days?.map((day, item) => {
-                    const isCompleted = habit.completed && habit.completed[day];
-
-                    return (
-                      <Pressable>
-                        <Text
-                          style={{
-                            color: day === currentDay ? "red" : "white",
-                          }}
-                        >
-                          {day}
-                        </Text>
-                        {isCompleted ? (
-                          <FontAwesome
-                            name="circle"
-                            size={24}
-                            color="white"
-                            style={{ marginTop: 12 }}
-                          />
-                        ) : (
-                          <Feather
-                            name="circle"
-                            size={24}
-                            color="white"
-                            style={{ marginTop: 12 }}
-                          />
-                        )}
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              </Pressable>
-            ))}
-          </View>
-        )}
-
-        {option === "Overall" && (
-          <View>
-            {habits?.map((habit, index) => (
-              <>
+          <ScrollView>
+            <View>
+              {habits?.map((habit, index) => (
                 <Pressable
                   style={{
                     marginVertical: 10,
@@ -397,23 +338,102 @@ const PlannerScreen = () => {
                     </Text>
                     <Text style={{ color: "white" }}>{habit.repeatMode}</Text>
                   </View>
-                </Pressable>
 
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Text>Completed On</Text>
-                  <Text>{getCompletedDays(habit.completed).join(", ")}</Text>
-                </View>
-              </>
-            ))}
-          </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-evenly",
+                      marginVertical: 10,
+                    }}
+                  >
+                    {days?.map((day, item) => {
+                      const isCompleted =
+                        habit.completed && habit.completed[day];
+
+                      return (
+                        <Pressable>
+                          <Text
+                            style={{
+                              color: day === currentDay ? "red" : "white",
+                            }}
+                          >
+                            {day}
+                          </Text>
+                          {isCompleted ? (
+                            <FontAwesome
+                              name="circle"
+                              size={24}
+                              color="white"
+                              style={{ marginTop: 12 }}
+                            />
+                          ) : (
+                            <Feather
+                              name="circle"
+                              size={24}
+                              color="white"
+                              style={{ marginTop: 12 }}
+                            />
+                          )}
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </Pressable>
+              ))}
+            </View>
+          </ScrollView>
         )}
-      </ScrollView>
+
+        {option === "Overall" && (
+          <ScrollView>
+            <View>
+              {habits?.map((habit, index) => (
+                <>
+                  <Pressable
+                    style={{
+                      marginVertical: 10,
+                      backgroundColor: habit.color,
+                      padding: 15,
+                      borderRadius: 24,
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          color: "white",
+                        }}
+                      >
+                        {habit.title}
+                      </Text>
+                      <Text style={{ color: "white" }}>{habit.repeatMode}</Text>
+                    </View>
+                  </Pressable>
+
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Text>Completed On</Text>
+                    <Text>{getCompletedDays(habit.completed).join(", ")}</Text>
+                  </View>
+                </>
+              ))}
+            </View>
+          </ScrollView>
+        )}
+      </View>
 
       <BottomModal
         onBackdropPress={() => setModalVisible(!isModalVisible)}
@@ -448,7 +468,7 @@ const PlannerScreen = () => {
               />
               <Text>Completed</Text>
             </Pressable>
-            <Pressable
+            {/* <Pressable
               style={{
                 flexDirection: "row",
                 alignItems: "center",
@@ -458,8 +478,8 @@ const PlannerScreen = () => {
             >
               <Feather name="skip-forward" size={24} color="black" />
               <Text>Skip</Text>
-            </Pressable>
-            <Pressable
+            </Pressable> */}
+            {/* <Pressable
               style={{
                 flexDirection: "row",
                 alignItems: "center",
@@ -469,8 +489,8 @@ const PlannerScreen = () => {
             >
               <Feather name="edit-2" size={24} color="black" />
               <Text>Edit</Text>
-            </Pressable>
-            <Pressable
+            </Pressable> */}
+            {/* <Pressable
               style={{
                 flexDirection: "row",
                 alignItems: "center",
@@ -480,7 +500,7 @@ const PlannerScreen = () => {
             >
               <EvilIcons name="archive" size={24} color="black" />
               <Text>Archive</Text>
-            </Pressable>
+            </Pressable> */}
 
             <Pressable
               onPress={deleteHabit}

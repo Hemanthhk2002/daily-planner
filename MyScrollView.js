@@ -100,9 +100,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   image: {
-    width: 325,
+    width: 300,
     height: 150, // Adjust height as needed
-    borderRadius: 10, // Optional: Add border radius
+    borderRadius: 10,
+    marginRight: 20, // Optional: Add border radius
   },
 });
 
