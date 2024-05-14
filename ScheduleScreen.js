@@ -33,9 +33,8 @@ const ScheduleScreen = () => {
   }, []);
 
   useEffect(() => {
-    console.log("nbb");
     getSchedule(new Date().toISOString().split("T")[0]);
-  }, []);
+  }, [scheduleData]);
 
   const handleDayPress = (date) => {
     setSelectedDate(date.dateString);
@@ -46,7 +45,6 @@ const ScheduleScreen = () => {
     const adjustedDate = new Date(offsetTime);
 
     const formattedDate = adjustedDate;
-    console.log(formattedDate);
     setPassData(formattedDate);
     setScheduleModal(true);
   };
@@ -56,7 +54,6 @@ const ScheduleScreen = () => {
         email: email,
         date: item,
     };
-    console.log(item)
 
     try {
       const response = await axios.post(PORT_URL + "/getSchedule", data);
@@ -67,14 +64,12 @@ const ScheduleScreen = () => {
           return timeA.localeCompare(timeB);
       });
       setScheduleData(sortedEvents);
-      console.log(scheduleData);
     } catch (error) {
         console.log(error);
     }
   };
 
   const openScheduleModal = () => {
-    console.log(new Date());
     const today = new Date(); // Get current date and time
     const yesterday = new Date(today); // Create a new date object with the current date and time
     yesterday.setDate(today.getDate());
@@ -82,12 +77,6 @@ const ScheduleScreen = () => {
     const adjustedDate = new Date(offsetTime);
 
     const formattedDate = adjustedDate;
-
-    // Log the formatted date
-    console.log(formattedDate);
-
-    // Set the state passData with the formatted date
-    console.log(formattedDate);
     setPassData(formattedDate);
 
     // Open the schedule modal

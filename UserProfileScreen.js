@@ -146,7 +146,7 @@ const UserProfileScreen = () => {
           }}
         />
 
-        <MyScrollView />
+         <MyScrollView />
 
         {/* Logout Button */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -161,7 +161,7 @@ const UserProfileScreen = () => {
         >
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <Text style={styles.modalText}>Are you sure you want to logout?</Text>
+              <Text style={styles.modalText}>some nigga asked "Are you sure you want to logout?"</Text>
               <View style={styles.modalButtons}>
                 <TouchableOpacity
                   style={[styles.modalButton, { backgroundColor: "#FF6347" }]}
