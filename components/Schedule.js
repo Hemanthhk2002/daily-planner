@@ -88,7 +88,7 @@ export default function Schedule({ visible, onClose, passedDate }) {
     const [description, setDescription] = useState("");
     const [email, setEmail] = useState("");
 
-    const days = ["Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun"];
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thr", "Fri", "Sat"];
 
     const [scheduleData, setScheduleData] = useState([]);
     const [selectedDays, setSelectedDays] = useState([]);
@@ -156,6 +156,37 @@ export default function Schedule({ visible, onClose, passedDate }) {
         }
     }, [visible]);
 
+    // Assuming `repeatOnDays` contains the indices of days to repeat (e.g., [1, 3] for Monday and Wednesday)
+    const repeatEventsOnCertainDays = async (originalEvent) => {
+        const startDate = new Date(); // Set the start date
+        const endDate = new Date(); // Set the end date
+        endDate.setDate(endDate.getDate() + 30); // Example: schedule for the next 7 days
+
+        // Iterate over each date in the range
+        const currentDate = new Date(startDate);
+        while (currentDate <= endDate) {
+            // Check if the current date matches any of the days specified in repeatOnDays
+            const currentDay = currentDate.getDay();
+            if (originalEvent.repeatOnDays.includes(days[currentDay])) {
+                const repeatedEvent = {
+                    ...originalEvent,
+                    date: currentDate.toISOString().split("T")[0],
+                };
+
+                try {
+                    await axios.post(PORT_URL + "/add", repeatedEvent);
+                    console.log("Repeated event added for date:", repeatedEvent.date);
+                } catch (error) {
+                    console.error("Error adding repeated event:", error);
+                }
+            }
+
+            // Move to the next date
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+    };
+
+
     const handleSubmit = async () => {
         let repeatVal;
         setAddVisible(false);
@@ -200,9 +231,11 @@ export default function Schedule({ visible, onClose, passedDate }) {
                 .catch((error) => {
                     console.error("Failed to schedule notification:", error);
                 });
-
-            console.log("category = " + category)
             await getCategorizedSchedule(category);
+            if (repeatVal) {
+                console.log("hi");
+                await repeatEventsOnCertainDays(data);
+            }
         } catch (error) {
             console.log(error);
         }
@@ -356,7 +389,6 @@ export default function Schedule({ visible, onClose, passedDate }) {
             });
             if (response.data.status == "ok") {
                 console.log("Schedule item deleted successfully.");
-                // Call getSchedule to refresh the schedule list
                 cancelScheduledNotification(deletingItem._id)
                     .then(() => {
                         console.log("Notification deleted successfully!");
@@ -370,6 +402,48 @@ export default function Schedule({ visible, onClose, passedDate }) {
             console.log("Error deleting schedule item:", error);
         }
     };
+
+    // Function to delete expired schedules
+    const deleteExpiredSchedules = async () => {
+        try {
+            // Get current date
+            const currentDate = new Date();
+            const yesterdayDate = new Date(currentDate);
+            yesterdayDate.setDate(currentDate.getDate() - 1);
+            const data = {
+                email: email,
+            }
+
+            const response = await axios.post(PORT_URL + "/getAllSchedules", data);
+            const allSchedules = response.data.data;
+            // // Filter expired schedules
+            const expiredSchedules = allSchedules.filter(schedule => new Date(schedule.date) < yesterdayDate);
+
+            // // Iterate over expired schedules and delete them
+            for (const expiredSchedule of expiredSchedules) {
+                await axios.post(PORT_URL + "/deleteScheduleItem", {
+                    _id: expiredSchedule._id,
+                });
+                console.log("Expired schedule item deleted successfully:", expiredSchedule._id);
+
+                // Cancel associated notification
+                await cancelScheduledNotification(expiredSchedule._id);
+                await getScheduleAfterDelete(expiredSchedule);
+            }
+            // console.log("All expired schedules deleted successfully.");
+        } catch (error) {
+            console.error("Error deleting expired schedules:", error);
+        }
+    };
+
+    // Periodically delete expired schedules, e.g., every hour
+    const deleteExpiredSchedulesPeriodically = () => {
+        setInterval(deleteExpiredSchedules, 6000); // 600000 milliseconds = 1 min
+    };
+
+    // Start periodic deletion
+    deleteExpiredSchedulesPeriodically();
+
 
     const currentTime = new Date(); // Get current time in local timezone
     const hours = currentTime.getHours(); // Extract hours
@@ -686,7 +760,6 @@ export default function Schedule({ visible, onClose, passedDate }) {
                                             <TouchableWithoutFeedback
                                                 key={dateIndex}
                                                 onPress={() => {
-                                                    console.log(item);
                                                     getSchedule(item.date);
                                                 }}
                                             >
@@ -819,15 +892,6 @@ export default function Schedule({ visible, onClose, passedDate }) {
                     </ModalPoup>
 
                     <View style={styles.footer}>
-                        {/* <TouchableOpacity
-              onPress={() => {
-                setAddVisible(true);
-              }}
-            >
-              <View style={styles.btn}>
-                <Text style={styles.btnText}>Add Schedule</Text>
-              </View>
-            </TouchableOpacity> */}
                         <TouchableOpacity
                             style={styles.button}
                             onPress={() => setAddVisible(true)}
@@ -898,7 +962,7 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontWeight: "500",
         color: "#737373",
-        marginBottom: 4,
+        marginBottom: 3,
     },
     itemDate: {
         fontSize: 15,

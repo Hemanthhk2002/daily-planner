@@ -8,6 +8,7 @@ const scheduleSchema = new mongoose.Schema({
   date: String,
   time: String,
   repeat: Boolean,
+  repeatOnDays: [String],
 });
 
 mongoose.model("schedule", scheduleSchema);
