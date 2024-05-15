@@ -83,16 +83,18 @@ app.post("/user-login", async (req, res) => {
 const schedule = mongoose.model("schedule");
 
 app.post("/add", async (req, res) => {
-  const { email, name, description, date, time, repeat } = req.body;
+  const { email, name, description, category, date, time, repeat, repeatOnDays } = req.body;
 
   try {
     const temp = await schedule.create({
       email,
       name,
       description,
+      category,
       date,
       time,
       repeat,
+      repeatOnDays,
     });
     console.log(temp);
     res.send({ status: "ok", message: "Schedule created", data: temp });
@@ -120,6 +122,31 @@ app.post("/getSchedule", async (req, res) => {
   }
 });
 
+app.post("/getAllSchedules", async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const data = await schedule.find({ email: email });
+    console.log(data);
+    res.send({ status: "ok", data: data });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.post("/getCategorizedSchedule", async (req, res) => {
+  const { email, date, category } = req.body;
+  console.log(category);
+
+  try {
+    const data = await schedule.find({ email: email, date: date, category: category });
+    console.log(data);
+    res.send({ status: "ok", data: data });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 app.post("/reminder", async (req, res) => {
   const { email } = req.body;
   console.log(email);
@@ -129,6 +156,26 @@ app.post("/reminder", async (req, res) => {
     res.send({ status: "ok", data: data });
   } catch (error) {
     console.log(error);
+  }
+});
+
+app.post("/deleteScheduleItem", async (req, res) => {
+  const id = req.body._id; // Extract the _id from the request body
+
+  console.log(req.body._id);
+
+  try {
+    const data = await schedule.deleteOne({ _id: id }); // Use the _id in the query
+
+    //console.log(data);
+
+    res.send({ status: "ok", data: data });
+  } catch (error) {
+    console.log(error);
+
+    res
+      .status(500)
+      .send({ status: "error", message: "Failed to delete schedule item" });
   }
 });
 
@@ -306,26 +353,6 @@ const validation = (req, res, next) => {
     res.status(401).json({ message: "No token found" });
   }
 };
-
-app.post("/deleteScheduleItem", async (req, res) => {
-  const id = req.body._id; // Extract the _id from the request body
-
-  console.log(req.body._id);
-
-  try {
-    const data = await schedule.deleteOne({ _id: id }); // Use the _id in the query
-
-    //console.log(data);
-
-    res.send({ status: "ok", data: data });
-  } catch (error) {
-    console.log(error);
-
-    res
-      .status(500)
-      .send({ status: "error", message: "Failed to delete schedule item" });
-  }
-});
 
 //-----------------------------[ H A B I T ]------------------------
 
