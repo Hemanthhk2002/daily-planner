@@ -41,7 +41,7 @@ const user = mongoose.model("logindetails");
 
 app.post("/register", async (req, res) => {
   const { email, name, pswd } = req.body;
-  console.log(email);
+  // console.log(email);
   const oldUser = await user.findOne({ email: email });
   const existuser = await user.findOne({ password: req.body.password });
   const t = await user.find();
@@ -73,7 +73,6 @@ app.post("/user-login", async (req, res) => {
     res
       .status(200)
       .json({ status: "ok", message: "User loggedin", data: oldUser, token });
-    console.log("User loggedin");
   } else {
     console.log(pswd + " " + oldUser.pswd);
     res.status(500).json({ status: "no", message: "password not matched" });
@@ -83,7 +82,16 @@ app.post("/user-login", async (req, res) => {
 const schedule = mongoose.model("schedule");
 
 app.post("/add", async (req, res) => {
-  const { email, name, description, category, date, time, repeat, repeatOnDays } = req.body;
+  const {
+    email,
+    name,
+    description,
+    category,
+    date,
+    time,
+    repeat,
+    repeatOnDays,
+  } = req.body;
 
   try {
     const temp = await schedule.create({
@@ -96,7 +104,6 @@ app.post("/add", async (req, res) => {
       repeat,
       repeatOnDays,
     });
-    console.log(temp);
     res.send({ status: "ok", message: "Schedule created", data: temp });
   } catch (error) {
     console.log(error);
@@ -124,10 +131,8 @@ app.post("/getSchedule", async (req, res) => {
 
 app.post("/getAllSchedules", async (req, res) => {
   const { email } = req.body;
-
   try {
     const data = await schedule.find({ email: email });
-    console.log(data);
     res.send({ status: "ok", data: data });
   } catch (error) {
     console.log(error);
@@ -136,11 +141,12 @@ app.post("/getAllSchedules", async (req, res) => {
 
 app.post("/getCategorizedSchedule", async (req, res) => {
   const { email, date, category } = req.body;
-  console.log(category);
-
   try {
-    const data = await schedule.find({ email: email, date: date, category: category });
-    console.log(data);
+    const data = await schedule.find({
+      email: email,
+      date: date,
+      category: category,
+    });
     res.send({ status: "ok", data: data });
   } catch (error) {
     console.log(error);
@@ -149,10 +155,8 @@ app.post("/getCategorizedSchedule", async (req, res) => {
 
 app.post("/reminder", async (req, res) => {
   const { email } = req.body;
-  console.log(email);
   try {
     const data = await schedule.find({ email: email });
-    console.log(data);
     res.send({ status: "ok", data: data });
   } catch (error) {
     console.log(error);
@@ -161,8 +165,6 @@ app.post("/reminder", async (req, res) => {
 
 app.post("/deleteScheduleItem", async (req, res) => {
   const id = req.body._id; // Extract the _id from the request body
-
-  console.log(req.body._id);
 
   try {
     const data = await schedule.deleteOne({ _id: id }); // Use the _id in the query
@@ -197,7 +199,6 @@ app.post("/habits", async (req, res) => {
         });
 
         const savedHabit = await newHabit.save();
-        console.log(savedHabit._id);
         const saveStatus = await Status({
           userId,
           habitId: savedHabit._id,
@@ -216,7 +217,6 @@ app.post("/habits", async (req, res) => {
 
 app.get("/habitslist", async (req, res) => {
   try {
-    console.log(req.headers);
     if (req.headers["token"] != null) {
       if (jwt.verify(req.headers["token"], process.env.AUTHENTICATION_KEY)) {
         const userId = jwt.decode(req.headers["token"]).userId;
@@ -297,11 +297,11 @@ app.put("/habits/:habitId/completed", async (req, res) => {
         if (!updatedHabit) {
           return res.status(404).json({ error: "Habit not found" });
         } else {
-          await Status.findOneAndUpdate({
-            habitId,
-            $set: { status: "completed" },
-            $new: true,
-          })
+          await Status.findOneAndUpdate(
+            { habitId },
+            { $set: { status: "completed" } },
+            { new: true }
+          )
             .then((rel) => {
               return res.status(200).json(updatedHabit);
             })

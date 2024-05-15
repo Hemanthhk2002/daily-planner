@@ -33,10 +33,8 @@ const LoginScreen = () => {
   const [expoPushToken, setExpoPushToken] = useState("");
 
   useEffect(() => {
-    console.log("Registering for push notifications...");
     registerForPushNotificationsAsync()
       .then((token) => {
-        console.log("token: ", token);
         setExpoPushToken(token);
       })
       .catch((err) => console.log(err));
@@ -72,7 +70,7 @@ const LoginScreen = () => {
           projectId: "9b313f5b-aab4-438b-89ff-b704955496f8",
         })
       ).data;
-      console.log(token);
+      // console.log(token);
     } else {
       alert("Must use physical device for Push Notifications");
     }
@@ -80,7 +78,6 @@ const LoginScreen = () => {
   }
 
   const scheduleReminder = async (email) => {
-    //console.log("Scheduling push notification...");
     const data = {
       email: email,
     };
@@ -133,7 +130,7 @@ const LoginScreen = () => {
       },
     });
 
-    console.log("Notification scheduled successfully!");
+    // console.log("Notification scheduled successfully!");
   };
 
   const handleLogin = async () => {
@@ -146,18 +143,18 @@ const LoginScreen = () => {
 
       try {
         const response = await axios.post(PORT_URL + "/user-login", userdata);
-        console.log(response.data.message);
+        // console.log(response.data.message);
 
         if (response.data.message === "User loggedin") {
           const userDataFromServer = response.data;
-          console.log("Login Console", userDataFromServer);
+          // console.log("Login Console", userDataFromServer);
           // Store user data in AsyncStorage
           await AsyncStorage.setItem(
             "data",
             JSON.stringify(userDataFromServer.data)
           )
             .then(() => {
-              console.log("Email stored successfully");
+              // console.log("Email stored successfully");
             })
             .catch((error) => {
               console.log("Error storing email: ", error);

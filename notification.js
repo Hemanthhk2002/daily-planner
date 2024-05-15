@@ -15,7 +15,7 @@ const usePushNotifications = () => {
   const [expoPushToken, setExpoPushToken] = useState("");
 
   useEffect(() => {
-    console.log("Registering for push notifications...");
+    // console.log("Registering for push notifications...");
     registerForPushNotificationsAsync()
       .then((token) => {
         console.log("token: ", token);
@@ -54,7 +54,7 @@ const usePushNotifications = () => {
           projectId: "9b313f5b-aab4-438b-89ff-b704955496f8",
         })
       ).data;
-      console.log(token);
+      // console.log(token);
     } else {
       console.error("Must use physical device for Push Notifications");
     }
@@ -81,8 +81,8 @@ const usePushNotifications = () => {
       hours += 12;
     }
 
-    console.log("id = ");
-    console.log(id);
+    // console.log("id = ");
+    // console.log(id);
 
     const notificationDate = new Date(year, month - 1, day, hours, minutes);
     await Notifications.scheduleNotificationAsync({
@@ -97,15 +97,15 @@ const usePushNotifications = () => {
         date: notificationDate,
       },
     });
-    console.log("Notification scheduled successfully!");
+    // console.log("Notification scheduled successfully!");
   };
 
   const cancelScheduledNotification = async (notificationIdentifier) => {
-    console.log("ID = " + notificationIdentifier);
+    // console.log("ID = " + notificationIdentifier);
     await Notifications.cancelScheduledNotificationAsync(
       notificationIdentifier
     );
-    console.log("Notification cancelled successfully!");
+    // console.log("Notification cancelled successfully!");
   };
 
   return { expoPushToken, scheduleReminder, cancelScheduledNotification };

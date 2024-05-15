@@ -33,7 +33,7 @@ const PlannerScreen = () => {
   const currentDay = new Date()
     .toLocaleDateString("en-US", { weekday: "short" })
     .slice(0, 3);
-  console.log(currentDay);
+  // console.log(currentDay);
   useEffect(() => {
     fetchHabits();
   }, []);
@@ -50,7 +50,7 @@ const PlannerScreen = () => {
         token: await AsyncStorage.getItem("token"),
         "Content-Type": "application/json",
       };
-      console.log(headers);
+      // console.log(headers);
       const response = await axios.get(PORT_URL + "/habitslist", { headers });
       setHabits(response.data);
     } catch (error) {
@@ -76,13 +76,19 @@ const PlannerScreen = () => {
         "Content-Type": "application/json",
       };
 
-      await axios.put(
+      let response = await axios.put(
         `${PORT_URL}/habits/${habitId}/completed`,
         {
           completed: updatedCompletion,
         },
         { headers }
       );
+
+      if (response.status == 200) {
+        console.log("Planner completed : " + JSON.stringify(response.data));
+      } else {
+        console.log("Planner completed : " + response.error);
+      }
 
       await fetchHabits();
 
@@ -98,7 +104,7 @@ const PlannerScreen = () => {
       })
     : [];
 
-  console.log("filtered habbits", habits);
+  // console.log("filtered habbits", habits);
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   const deleteHabit = async () => {

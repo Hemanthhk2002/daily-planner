@@ -16,6 +16,7 @@ import axios from "axios";
 import PORT_URL from "./ip";
 import MyScrollView from "./MyScrollView"; // Import the MyScrollView component
 import { useNavigation, CommonActions } from "@react-navigation/native";
+import { useIsFocused } from "@react-navigation/core";
 
 const UserProfileScreen = () => {
   const navigation = useNavigation();
@@ -24,26 +25,28 @@ const UserProfileScreen = () => {
   const [habitCompletedCount, setHabitCompletedCount] = useState(0);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  useEffect(() => {
-    // Define an async function to fetch data from AsyncStorage
-    const fetchData = async () => {
-      try {
-        const data = await AsyncStorage.getItem("data");
-        if (data) {
-          const parsedData = JSON.parse(data);
-          console.log(parsedData.name);
-          setUserName(parsedData.name);
-        }
-      } catch (error) {
-        console.error("Error fetching data from AsyncStorage:", error);
-      }
-    };
+  const isFocused = useIsFocused();
 
-    // Call the fetchData function when the component mounts
-    fetchData();
-    fetchHabitCount();
-    fetchHabits();
-  }, []);
+  useEffect(() => {
+    if (isFocused) {
+      fetchData();
+      fetchHabitCount();
+      fetchHabits();
+    }
+  }, [isFocused]);
+
+  const fetchData = async () => {
+    try {
+      const data = await AsyncStorage.getItem("data");
+      console.log(JSON.stringify(data));
+      if (data) {
+        const parsedData = JSON.parse(data);
+        setUserName(parsedData.name);
+      }
+    } catch (error) {
+      console.error("Error fetching data from AsyncStorage:", error);
+    }
+  };
 
   const fetchHabits = async () => {
     const today = new Date();
@@ -53,7 +56,7 @@ const UserProfileScreen = () => {
       date.setDate(date.getDate() - i);
       pastWeekDates.push(date.toISOString().split("T")[0]);
     }
-    console.log(pastWeekDates);
+
     try {
       const headers = {
         token: await AsyncStorage.getItem("token"),
@@ -64,7 +67,6 @@ const UserProfileScreen = () => {
         weekDays: pastWeekDates,
       };
       const response = await axios.get(PORT_URL + "/getHabits", { headers });
-      console.log(response.data);
     } catch (error) {
       console.log("error " + error);
     }
@@ -77,7 +79,6 @@ const UserProfileScreen = () => {
         "Content-Type": "application/json",
       };
       const response = await axios.get(PORT_URL + "/getStatus", { headers });
-      console.log("Testing fine");
       setHabitPendingCount(response.data.pendingHabitsCount);
       setHabitCompletedCount(response.data.completedHabitsCount);
     } catch (error) {

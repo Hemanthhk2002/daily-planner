@@ -75,7 +75,7 @@ export default function Create({ visible, setCreateModalVisible, onCallback }) {
         reminder: true,
         days: selectedDays,
       };
-      console.log(habitDetails);
+      // console.log(habitDetails);
 
       const headers = {
         token: await AsyncStorage.getItem("token"),
@@ -107,7 +107,6 @@ export default function Create({ visible, setCreateModalVisible, onCallback }) {
         console.log("Response status:", error.response.status);
         console.log("Response headers:", error.response.headers);
       } else if (error.request) {
-        // The request was made but no response was received
         console.log("No response received:", error.request);
       } else {
         // Something happened in setting up the request that triggered an Error

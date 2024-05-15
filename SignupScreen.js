@@ -45,20 +45,16 @@ const SignupScreen = () => {
         pswd: password,
       };
 
-      console.log(data);
+      // console.log(data);
 
       try {
-        const response = await axios.post(PORT_URL+"/register",
-          data
-        );
-        console.log("Response data:", response.data);
-        if(response.data.data == "User created"){
+        const response = await axios.post(PORT_URL + "/register", data);
+        // console.log("Response data:", response.data);
+        if (response.data.data == "User created") {
           navigation.navigate("TabNavigation");
-        }
-        else{
+        } else {
           navigation.navigate("Signup");
         }
-        
       } catch (error) {
         if (error.response) {
           // The request was made and the server responded with a status code
@@ -81,7 +77,7 @@ const SignupScreen = () => {
 
   return (
     <ImageBackground
-      source={require('./assets/images/teamwork.png')}
+      source={require("./assets/images/teamwork.png")}
       style={styles.container}
     >
       <View style={styles.overlay}>
@@ -125,7 +121,9 @@ const SignupScreen = () => {
           <Text style={styles.loginText}>SIGN UP</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={handleSignIn}>
-          <Text style={styles.signInText}>Already have an account? Sign in</Text>
+          <Text style={styles.signInText}>
+            Already have an account? Sign in
+          </Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>

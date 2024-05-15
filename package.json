@@ -33,12 +33,10 @@
     "react-native-chart-kit": "^6.12.0",
     "react-native-elements": "^3.4.3",
     "react-native-gesture-handler": "~2.16.1",
-    "react-native-gesture-handler": "~2.16.1",
     "react-native-modals": "^0.22.3",
     "react-native-paper": "^5.12.3",
     "react-native-svg": "^15.2.0",
     "react-native-swiper": "^1.6.0",
-    "typescript": "~5.3.3"
     "typescript": "~5.3.3"
   },
   "devDependencies": {
