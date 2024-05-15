@@ -215,6 +215,25 @@ app.get("/getStatus", async (req, res) => {
   }
 });
 
+app.get("/getHabits", async (req, res) => {
+  try {
+    if (req.headers["token"] != null) {
+      if (jwt.verify(req.headers["token"], process.env.AUTHENTICATION_KEY)) {
+        const userId = jwt.decode(req.headers["token"]).userId;
+        const allStatus = await Status.find({ userId });
+        res.status(200).json({ allStatus });
+        // res.status(200).json(allStatus);
+      } else {
+        res.status(401).json({ message: "Unauthorized please contact admin" });
+      }
+    } else {
+      res.status(401).json({ message: "No token found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.put("/habits/:habitId/completed", async (req, res) => {
   try {
     if (req.headers["token"] != null) {

@@ -42,7 +42,33 @@ const UserProfileScreen = () => {
     // Call the fetchData function when the component mounts
     fetchData();
     fetchHabitCount();
+    fetchHabits();
   }, []);
+
+  const fetchHabits = async () => {
+    const today = new Date();
+    const pastWeekDates = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      pastWeekDates.push(date.toISOString().split("T")[0]);
+    }
+    console.log(pastWeekDates);
+    try {
+      const headers = {
+        token: await AsyncStorage.getItem("token"),
+        "Content-Type": "application/json",
+      };
+      const data = {
+        headers: headers,
+        weekDays: pastWeekDates,
+      };
+      const response = await axios.get(PORT_URL + "/getHabits", { headers });
+      console.log(response.data);
+    } catch (error) {
+      console.log("error " + error);
+    }
+  };
 
   const fetchHabitCount = async () => {
     try {
@@ -59,8 +85,8 @@ const UserProfileScreen = () => {
     }
   };
 
-  const pendingTasks = [10, 20, 30, 25, 15];
-  const completedTasks = [5, 15, 25, 20, 10];
+  const pendingTasks = [10, 20, 30, 25, 15, 12, 10];
+  const completedTasks = [5, 15, 25, 20, 10, 20, 20];
 
   // Function to handle logout and toggle logout modal visibility
   const handleLogout = () => {
@@ -70,7 +96,6 @@ const UserProfileScreen = () => {
   // Function to confirm logout
 
   const confirmLogout = async () => {
-    // Define navigation within the function
     try {
       await AsyncStorage.removeItem("data");
       await AsyncStorage.removeItem("token");
@@ -142,7 +167,7 @@ const UserProfileScreen = () => {
 
         <LineChart
           data={{
-            labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"], // Example labels
+            labels: ["Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"], // Example labels
             datasets: [
               {
                 data: pendingTasks, // Array of pending tasks data points
