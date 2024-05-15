@@ -149,7 +149,7 @@ export default function Create({ visible, setCreateModalVisible, onCallback }) {
                 value={title}
                 onChangeText={(text) => setTitle(text)}
                 style={{
-                  width: "95%",
+                  width: "100%",
                   marginTop: 15,
                   padding: 15,
                   borderRadius: 10,
@@ -235,7 +235,7 @@ export default function Create({ visible, setCreateModalVisible, onCallback }) {
                   <Pressable
                     key={index}
                     style={{
-                      width: 40,
+                      width: 30,
                       height: 40,
                       borderRadius: 5,
                       backgroundColor: selectedDays.includes(item)
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     padding: 20,
     borderRadius: 10,
-    width: "80%",
+    width: "90%",
   },
   backIcon: {
     position: "absolute",
