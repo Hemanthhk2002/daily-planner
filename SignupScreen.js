@@ -18,20 +18,55 @@ const SignupScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [newPasswordError, setNewPasswordError] = useState("");
 
-  function handleSignup() {
-    if (!username || !email || !password || !newPassword) {
-      Alert.alert("Validation Error", "Please fill in all fields");
-      return false;
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleSignup = () => {
+    let valid = true;
+
+    // Reset errors
+    setUsernameError("");
+    setEmailError("");
+    setPasswordError("");
+    setNewPasswordError("");
+
+    if (!username) {
+      setUsernameError("Username is required");
+      valid = false;
     }
-    if (password != newPassword) {
-      Alert.alert("Validation Error", "Reenter your password correctly");
+
+    if (!email) {
+      setEmailError("Email is required");
+      valid = false;
+    } else if (!validateEmail(email)) {
+      setEmailError("Invalid email format");
+      valid = false;
+    }
+
+    if (!password) {
+      setPasswordError("Password is required");
+      valid = false;
+    }
+
+    if (!newPassword) {
+      setNewPasswordError("New Password is required");
+      valid = false;
+    } else if (password !== newPassword) {
+      setNewPasswordError("Passwords do not match");
+      valid = false;
       setPassword("");
       setNewPassword("");
-      return false;
     }
-    return true;
-  }
+
+    return valid;
+  };
 
   const handleSignIn = () => {
     navigation.navigate("Login");
@@ -45,29 +80,23 @@ const SignupScreen = () => {
         pswd: password,
       };
 
-      // console.log(data);
-
       try {
         const response = await axios.post(PORT_URL + "/register", data);
-        // console.log("Response data:", response.data);
-        if (response.data.data == "User created") {
+        if (response.data.data === "User created") {
           navigation.navigate("TabNavigation");
         } else {
           navigation.navigate("Signup");
         }
       } catch (error) {
         if (error.response) {
-          // The request was made and the server responded with a status code
           console.log(
             "Server responded with non-2xx status code:",
             error.response.status
           );
           console.log("Response data:", error.response.data);
         } else if (error.request) {
-          // The request was made but no response was received
           console.log("No response received from server.");
         } else {
-          // Something happened in setting up the request that triggered an Error
           console.log("Error setting up the request:", error.message);
         }
         console.log("Error config:", error.config);
@@ -82,15 +111,18 @@ const SignupScreen = () => {
     >
       <View style={styles.overlay}>
         <Text style={styles.logo}>Register</Text>
-        <View style={styles.inputView}>
+        <View style={styles.inputContainer}>
           <TextInput
             style={styles.inputText}
             placeholder="Username"
             onChangeText={(text) => setUsername(text)}
             value={username}
           />
+          {usernameError ? (
+            <Text style={styles.error}>{usernameError}</Text>
+          ) : null}
         </View>
-        <View style={styles.inputView}>
+        <View style={styles.inputContainer}>
           <TextInput
             style={styles.inputText}
             placeholder="Email"
@@ -98,8 +130,9 @@ const SignupScreen = () => {
             value={email}
             keyboardType="email-address"
           />
+          {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
         </View>
-        <View style={styles.inputView}>
+        <View style={styles.inputContainer}>
           <TextInput
             style={styles.inputText}
             placeholder="Password"
@@ -107,8 +140,11 @@ const SignupScreen = () => {
             onChangeText={(text) => setPassword(text)}
             value={password}
           />
+          {passwordError ? (
+            <Text style={styles.error}>{passwordError}</Text>
+          ) : null}
         </View>
-        <View style={styles.inputView}>
+        <View style={styles.inputContainer}>
           <TextInput
             style={styles.inputText}
             placeholder="New Password"
@@ -116,6 +152,9 @@ const SignupScreen = () => {
             onChangeText={(text) => setNewPassword(text)}
             value={newPassword}
           />
+          {newPasswordError ? (
+            <Text style={styles.error}>{newPasswordError}</Text>
+          ) : null}
         </View>
         <TouchableOpacity style={styles.loginBtn} onPress={handleSubmit}>
           <Text style={styles.loginText}>SIGN UP</Text>
@@ -137,7 +176,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   overlay: {
-    backgroundColor: "rgba(255, 255, 255, 0.8)", // Adjust the opacity as needed
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
     width: "100%",
     padding: 20,
     borderRadius: 10,
@@ -150,17 +189,21 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingTop: 50,
   },
-  inputView: {
+  inputContainer: {
     width: "100%",
-    backgroundColor: "#B3C8CF",
-    borderRadius: 10,
-    height: 50,
     marginBottom: 20,
-    justifyContent: "center",
-    padding: 20,
   },
   inputText: {
     height: 50,
+    backgroundColor: "#B3C8CF",
+    borderRadius: 10,
+    paddingHorizontal: 20,
+  },
+  error: {
+    color: "red",
+    fontSize: 14,
+    marginTop: 5,
+    marginLeft: 20,
   },
   loginBtn: {
     width: "100%",

@@ -168,9 +168,15 @@ const PlannerScreen = () => {
             alignItems: "center",
             justifyContent: "space-between",
             marginTop: 50,
+            marginBottom: 20,
+            // padding: 20,
           }}
         >
-          <Ionicons name="logo-foursquare" size={27} color="black" />
+          {/* <Ionicons name="logo-foursquare" size={27} color="black" /> */}
+          <Text style={{ marginTop: 5, fontSize: 23, fontWeight: "500" }}>
+            Habits
+          </Text>
+
           <AntDesign
             onPress={openCreateModal}
             name="plus"
@@ -178,10 +184,6 @@ const PlannerScreen = () => {
             color="black"
           />
         </View>
-
-        <Text style={{ marginTop: 5, fontSize: 23, fontWeight: "500" }}>
-          habits
-        </Text>
 
         <View
           style={{
@@ -241,10 +243,11 @@ const PlannerScreen = () => {
                     key={index}
                     onLongPress={() => handleLongPress(item._id)}
                     style={{
-                      marginVertical: 10,
+                      margin: 10,
                       backgroundColor: item?.color,
                       padding: 12,
-                      borderRadius: 24,
+                      borderRadius: 15,
+                      paddingVertical: 15,
                     }}
                   >
                     <Text
@@ -319,6 +322,7 @@ const PlannerScreen = () => {
             <View>
               {habits?.map((habit, index) => (
                 <Pressable
+                  key={index}
                   style={{
                     marginVertical: 10,
                     backgroundColor: habit.color,
@@ -358,7 +362,7 @@ const PlannerScreen = () => {
                         habit.completed && habit.completed[day];
 
                       return (
-                        <Pressable>
+                        <Pressable key={item}>
                           <Text
                             style={{
                               color: day === currentDay ? "red" : "white",
@@ -395,7 +399,7 @@ const PlannerScreen = () => {
           <ScrollView>
             <View>
               {habits?.map((habit, index) => (
-                <>
+                <View key={index}>
                   <Pressable
                     style={{
                       marginVertical: 10,
@@ -434,7 +438,7 @@ const PlannerScreen = () => {
                     <Text>Completed On</Text>
                     <Text>{getCompletedDays(habit.completed).join(", ")}</Text>
                   </View>
-                </>
+                </View>
               ))}
             </View>
           </ScrollView>

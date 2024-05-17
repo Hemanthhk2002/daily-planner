@@ -29,6 +29,8 @@ const LoginScreen = () => {
   const navigation = useNavigation();
   const [email, setemail] = useState();
   const [password, setPassword] = useState();
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [expoPushToken, setExpoPushToken] = useState("");
 
@@ -39,6 +41,33 @@ const LoginScreen = () => {
       })
       .catch((err) => console.log(err));
   }, []);
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password) => {
+    return password.length >= 3;
+  };
+
+  const handleValidation = () => {
+    if (!validateEmail(email)) {
+      setEmailError("Enter the valid Email");
+      return false;
+    } else {
+      setEmailError("");
+    }
+
+    if (!validatePassword(password)) {
+      setPasswordError("password not match");
+      return false;
+    } else {
+      setPasswordError("");
+    }
+
+    return true;
+  };
 
   async function registerForPushNotificationsAsync() {
     let token;
@@ -134,7 +163,7 @@ const LoginScreen = () => {
   };
 
   const handleLogin = async () => {
-    if (true) {
+    if (handleValidation()) {
       // You may want to adjust this condition based on your app's logic
       const userdata = {
         email: email,
@@ -198,6 +227,9 @@ const LoginScreen = () => {
           autoCapitalize="none"
         />
       </View>
+      <View>
+        {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
+      </View>
       <View style={styles.inputView}>
         <TextInput
           style={styles.inputText}
@@ -209,7 +241,12 @@ const LoginScreen = () => {
           autoCapitalize="none"
         />
       </View>
-      <View style={styles.checkboxContainer}>
+      <View>
+        {passwordError ? (
+          <Text style={styles.error}>{passwordError}</Text>
+        ) : null}
+      </View>
+      {/* <View style={styles.checkboxContainer}>
         <TouchableOpacity
           onPress={() => setRememberMe(!rememberMe)}
           style={styles.checkbox}
@@ -217,7 +254,7 @@ const LoginScreen = () => {
           {rememberMe && <View style={styles.checked} />}
         </TouchableOpacity>
         <Text style={styles.checkboxLabel}>Remember Me</Text>
-      </View>
+      </View> */}
       <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
         <Text style={styles.loginText}>LOGIN</Text>
       </TouchableOpacity>
@@ -260,7 +297,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#B3C8CF",
     borderRadius: 10,
     height: 50,
-    marginBottom: 20,
+    marginBottom: 10,
     justifyContent: "center",
     padding: 20,
     borderWidth: 1,
@@ -317,6 +354,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 25,
     alignSelf: "center",
+  },
+  error: {
+    color: "red",
+    marginTop: -8,
+    marginBottom: 10,
+    marginLeft: -130,
   },
 });
 

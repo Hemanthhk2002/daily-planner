@@ -12,6 +12,7 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import PORT_URL from "./ip";
+import { useIsFocused } from "@react-navigation/core";
 
 const ScheduleScreen = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().dateString);
@@ -37,6 +38,14 @@ const ScheduleScreen = () => {
     // Call the fetchData function when the component mounts
     fetchData();
   }, []);
+
+  const isFocused = useIsFocused();
+
+  // useEffect(() => {
+  //   if (isFocused) {
+  //     getSchedule(new Date().toISOString().split("T")[0]);
+  //   }
+  // }, [isFocused]);
 
   useEffect(() => {
     getSchedule(new Date().toISOString().split("T")[0]);
@@ -66,16 +75,17 @@ const ScheduleScreen = () => {
         token: await AsyncStorage.getItem("token"),
         "Content-Type": "application/json",
       };
+      //console.log("Date : ", data);
       const response = await axios.post(PORT_URL + "/getSchedule", data, {
         headers,
       });
-      console.log("ScheduleData", response.data);
+      //console.log("ScheduleData", response.data);
       const sortedEvents = response.data.data.sort((a, b) => {
         const timeA = a.time.toLowerCase();
         const timeB = b.time.toLowerCase();
         return timeA.localeCompare(timeB);
       });
-      // setScheduleData(sortedEvents); //don't do that
+      setScheduleData(sortedEvents); //don't do that
     } catch (error) {
       console.log(error);
     }

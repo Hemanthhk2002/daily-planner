@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 30,
   },
+
   scrollView: {
     flexDirection: "row",
     width: screenWidth * 3, // Ensure enough space for all images

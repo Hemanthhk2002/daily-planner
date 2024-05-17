@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "login",
-    "slug": "my-app",
+    "slug": "habitsync",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -21,25 +21,21 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.sudharsana.habitsync"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      [
-        "expo-font",
-        {
-          "fonts": [
-            "./assets/fonts/Bree Serif Regular.ttf"
-          ]
-        }
-      ],
       "expo-router"
     ],
     "extra": {
       "eas": {
-        "projectId": "9b313f5b-aab4-438b-89ff-b704955496f8"
+        "projectId": "06bf4805-4afd-4b79-bc3a-931e70be8bf3"
+      },
+      "router": {
+        "origin": false
       }
     },
     "owner": "sudharsana"

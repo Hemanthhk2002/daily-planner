@@ -55,11 +55,11 @@ export default function Create({ visible, setCreateModalVisible, onCallback }) {
   };
 
   const colors = [
-    "#FF5733", // Red
+    "#FB8DA0",
     "#FFD700", // Gold
     "#5D76A9",
     "#1877F2", // Medium Purple
-    "#32CD32", // Lime Green
+    "#B6E2D3", // Lime Green
     "#CCCCFF", // Tomato
     "#4169E1", // Royal Blue
   ];

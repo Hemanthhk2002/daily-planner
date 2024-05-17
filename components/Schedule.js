@@ -307,9 +307,15 @@ export default function Schedule({ visible, onClose, passedDate }) {
       date: item.date,
     };
     // console.log(data);
+    const headers = {
+      token: await AsyncStorage.getItem("token"),
+      "Content-Type": "application/json",
+    };
 
     try {
-      const response = await axios.post(PORT_URL + "/getSchedule", data);
+      const response = await axios.post(PORT_URL + "/getSchedule", data, {
+        headers,
+      });
 
       const sortedEvents = response.data.data.sort((a, b) => {
         const timeA = a.time.toLowerCase();
